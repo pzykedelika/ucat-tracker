@@ -222,14 +222,6 @@
       setTiming('Timed');
       updateScorePercentage();
     });
-    
-    // Subscribe to realtime INSERT events on the 'scores' table
-    supabase
-      .channel('public:scores')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'scores' }, payload => {
-        loadHistoryFromServer();
-      })
-      .subscribe();
   });
 </script>
 </body>
