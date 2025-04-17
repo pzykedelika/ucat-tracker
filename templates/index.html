@@ -71,7 +71,7 @@
   <div class="card mb-4">
     <div class="card-header">Enter New Score</div>
     <div class="card-body">
-      <form method="post" action="/">
+      <form id="scoreForm">
         <!-- A single row of "auto" columns so that each label+input lines up horizontally -->
         <div class="row gx-4 gy-2 align-items-end" style="--bs-gutter-x: 2.5rem;">
           <!-- Date -->
@@ -198,7 +198,7 @@
     loadHistoryFromServer();
 
     // intercept form
-    document.querySelector('form').addEventListener('submit', async function(e) {
+    document.getElementById('scoreForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
       const entry = {
