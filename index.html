@@ -153,14 +153,16 @@
 
   // fetch all scores from Supabase
   async function loadHistoryFromServer() {
-    const { data: scores, error } = await supabase
-      .from('scores')
-      .select('*')
-      .order('date', { ascending: true });
-    if (error) {
-      console.error(error);
-      return;
-    }
+  const { data: scores, error } = await supabase
+    .from('scores')
+    .select('*')
+    .order('date', { ascending: true });
+  console.log('[Supabase] load error:', error);
+  console.log('[Supabase] load data :', scores);
+  if (error) {
+    console.error(error);
+    return;
+  }
 
     const tbody = document.getElementById('historyBody');
     tbody.innerHTML = '';  
@@ -186,12 +188,14 @@
 
   // add a new score
   async function addScoreToServer(entry) {
-    const { data, error } = await supabase
-      .from('scores')
-      .insert([ entry ]);
-    if (error) console.error(error);
-    return data;
-  }
+  const { data, error } = await supabase
+    .from('scores')
+    .insert([ entry ]);
+  console.log('[Supabase] insert error:', error);
+  console.log('[Supabase] insert data :', data);
+  if (error) console.error(error);
+  return data;
+}
 
   document.addEventListener('DOMContentLoaded', () => {
     // initial load
