@@ -6,6 +6,82 @@
   <title>UCAT Scores Tracker</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script type="module">
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCb0Ru1X1EUeGVU0GAttLbsEsje_KQJKeo",
+      authDomain: "ucat-e1503.firebaseapp.com",
+      projectId: "ucat-e1503",
+      storageBucket: "ucat-e1503.firebasestorage.app",
+      messagingSenderId: "607003588773",
+      appId: "1:607003588773:web:4bb1c9d5534b4059af754c",
+      measurementId: "G-9R1TST35JH"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+  </script>
+  <script>
+    const auth = firebase.auth();
+    const db   = firebase.firestore();
+
+    // 2) Hook up login UI
+    document.getElementById('btn-login').onclick =
+      () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById('auth-ui').style.display    = 'none';
+        document.getElementById('tracker-ui').style.display = 'block';
+        loadScores();
+      } else {
+        document.getElementById('auth-ui').style.display    = 'block';
+        document.getElementById('tracker-ui').style.display = 'none';
+      }
+    });
+
+    // 3) Read/write scores exactly as before, e.g.:
+    async function loadScores() {
+      const user = auth.currentUser;
+      const tbody = document.getElementById('historyBody');
+      tbody.innerHTML = '';
+      const snapshot = await db.collection('scores')
+        .where('userId', '==', user.uid)
+        .orderBy('date')
+        .get();
+      if (snapshot.empty) {
+        tbody.innerHTML = `<tr id="noScoresRow"><td colspan="5" class="text-center">No scores yet.</td></tr>`;
+      } else {
+        snapshot.forEach(doc => appendHistoryEntry(doc.data()));
+      }
+    }
+
+    async function addScore(entry) {
+      entry.userId = auth.currentUser.uid;
+      await db.collection('scores').add(entry);
+    }
+
+    document.getElementById('scoreForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const entry = {
+        date: document.getElementById('date').value,
+        section: document.getElementById('section').value,
+        timing: document.getElementById('timing').value,
+        time: document.getElementById('timing').value === 'Timed' ? Number(document.getElementById('time').value) : 0,
+        score: document.getElementById('score').value
+      };
+      await addScore(entry);
+      loadScores();
+      e.target.reset();
+      setTiming('Timed');
+      updateScorePercentage();
+    });
+  </script>
   <script>
     // Function to toggle the display of the time input based on the hidden timing value
     function toggleTimeField() {
@@ -64,177 +140,88 @@
   </script>
 </head>
 <body>
-<div class="container mt-5">
-  <h1 class="mb-4">UCAT Tracker</h1>
-  
-  <!-- Card for entering a new score -->
-  <div class="card mb-4">
-    <div class="card-header">Enter New Score</div>
-    <div class="card-body">
-      <form id="scoreForm">
-        <!-- A single row of "auto" columns so that each label+input lines up horizontally -->
-        <div class="row gx-4 gy-2 align-items-end" style="--bs-gutter-x: 2.5rem;">
-          <!-- Date -->
-          <div class="col-auto">
-            <label for="date" class="col-form-label">Date</label>
-            <input type="date" class="form-control" id="date" name="date" required>
-          </div>
-          <!-- Section -->
-          <div class="col-auto">
-            <label for="section" class="col-form-label">Section</label>
-            <select class="form-select" id="section" name="section" required>
-              <option value="" selected disabled>Select Section</option>
-              <option value="VR">VR</option>
-              <option value="DM">DM</option>
-              <option value="QR">QR</option>
-            </select>
-          </div>
-          <!-- Timing Buttons -->
-          <div class="col-auto d-flex align-items-center">
-              <input type="hidden" name="timing" id="timing" value="Timed">
-              <button type="button" id="btnTimed" class="btn btn-primary me-2" onclick="setTiming('Timed')">Timed</button>
-              <button type="button" id="btnUntimed" class="btn btn-outline-primary" onclick="setTiming('Untimed')">Untimed</button>
-          </div>
-          <!-- Time (appears only if "Timed" is selected) -->
-          <div class="col-auto" id="timeInputField">
-              <label for="time" class="col-form-label">Time (minutes)</label>
-              <input type="number" class="form-control" id="time" name="time" min="0">
-          </div>
-          <!-- Score -->
-          <div class="col-auto">
-            <label for="score" class="col-form-label">Score</label>
-            <div class="d-flex align-items-center">
-              <input type="text" class="form-control" id="score" name="score" required style="width:150px;">
-              <span id="scorePercentage" class="ms-2"></span>
+<div id="auth-ui">
+  <button id="btn-login" class="btn btn-secondary">Log in / Sign up</button>
+</div>
+<div id="tracker-ui" style="display:none;">
+  <div class="container mt-5">
+    <h1 class="mb-4">UCAT Tracker</h1>
+    
+    <!-- Card for entering a new score -->
+    <div class="card mb-4">
+      <div class="card-header">Enter New Score</div>
+      <div class="card-body">
+        <form id="scoreForm">
+          <!-- A single row of "auto" columns so that each label+input lines up horizontally -->
+          <div class="row gx-4 gy-2 align-items-end" style="--bs-gutter-x: 2.5rem;">
+            <!-- Date -->
+            <div class="col-auto">
+              <label for="date" class="col-form-label">Date</label>
+              <input type="date" class="form-control" id="date" name="date" required>
+            </div>
+            <!-- Section -->
+            <div class="col-auto">
+              <label for="section" class="col-form-label">Section</label>
+              <select class="form-select" id="section" name="section" required>
+                <option value="" selected disabled>Select Section</option>
+                <option value="VR">VR</option>
+                <option value="DM">DM</option>
+                <option value="QR">QR</option>
+              </select>
+            </div>
+            <!-- Timing Buttons -->
+            <div class="col-auto d-flex align-items-center">
+                <input type="hidden" name="timing" id="timing" value="Timed">
+                <button type="button" id="btnTimed" class="btn btn-primary me-2" onclick="setTiming('Timed')">Timed</button>
+                <button type="button" id="btnUntimed" class="btn btn-outline-primary" onclick="setTiming('Untimed')">Untimed</button>
+            </div>
+            <!-- Time (appears only if "Timed" is selected) -->
+            <div class="col-auto" id="timeInputField">
+                <label for="time" class="col-form-label">Time (minutes)</label>
+                <input type="number" class="form-control" id="time" name="time" min="0">
+            </div>
+            <!-- Score -->
+            <div class="col-auto">
+              <label for="score" class="col-form-label">Score</label>
+              <div class="d-flex align-items-center">
+                <input type="text" class="form-control" id="score" name="score" required style="width:150px;">
+                <span id="scorePercentage" class="ms-2"></span>
+              </div>
+            </div>
+            <!-- Submit -->
+            <div class="col-auto">
+              <button type="submit" class="btn btn-primary">Submit Score</button>
             </div>
           </div>
-          <!-- Submit -->
-          <div class="col-auto">
-            <button type="submit" class="btn btn-primary">Submit Score</button>
-          </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
-  </div>
-  
-  <!-- Card for displaying score history -->
-  <div class="card">
-    <div class="card-header">Score History</div>
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Section</th>
-              <th>Timing</th>
-              <th>Time</th>
-              <th>Score</th>
-            </tr>
-          </thead>
-          <tbody id="historyBody">
-            <tr id="noScoresRow">
-              <td colspan="5" class="text-center">No scores yet.</td>
-            </tr>
-          </tbody>
-        </table>
+    
+    <!-- Card for displaying score history -->
+    <div class="card">
+      <div class="card-header">Score History</div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Section</th>
+                <th>Timing</th>
+                <th>Time</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody">
+              <tr id="noScoresRow">
+                <td colspan="5" class="text-center">No scores yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 </div>
-
- <!-- include the Supabase JS client -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  // initialize
-  const SUPA_URL = 'https://tmoozkgtaaaqddkrsvua.supabase.co';       // PROJECT URL
-  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtb296a2d0YWFhcWRka3JzdnVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ4ODI1ODAsImV4cCI6MjA2MDQ1ODU4MH0.D5oZRQEHOkDMV1MCOZ1PVmlmyDTn-QdXD83XWywXGgE';                          // anon public key
-  const supabase = supabase.createClient(SUPA_URL, SUPA_KEY);
-
-  // fetch all scores from Supabase
-  async function loadHistoryFromServer() {
-  const { data: scores, error } = await supabase
-    .from('scores')
-    .select('*')
-    .order('date', { ascending: true });
-  console.log('[Supabase] load error:', error);
-  console.log('[Supabase] load data :', scores);
-  if (error) {
-    console.error(error);
-    return;
-  }
-
-    const tbody = document.getElementById('historyBody');
-    tbody.innerHTML = '';  
-    if (scores.length === 0) {
-      tbody.innerHTML = `
-        <tr id="noScoresRow">
-          <td colspan="5" class="text-center">No scores yet.</td>
-        </tr>`;
-    } else {
-      scores.forEach(entry => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${entry.date}</td>
-          <td>${entry.section}</td>
-          <td>${entry.timing}</td>
-          <td>${entry.time}</td>
-          <td>${entry.score}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-  }
-
-  // add a new score
-  async function addScoreToServer(entry) {
-  const { data, error } = await supabase
-    .from('scores')
-    .insert([ entry ]);
-  console.log('[Supabase] insert error:', error);
-  console.log('[Supabase] insert data :', data);
-  if (error) console.error(error);
-  return data;
-}
-
-  document.addEventListener('DOMContentLoaded', () => {
-    // initial load
-    loadHistoryFromServer();
-
-    // intercept form
-    document.getElementById('scoreForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-
-      const entry = {
-        date:    document.getElementById('date').value,
-        section: document.getElementById('section').value,
-        timing:  document.getElementById('timing').value,
-        time:    document.getElementById('timing').value === 'Timed'
-                 ? parseInt(document.getElementById('time').value, 10) 
-                 : 0,
-        score:   document.getElementById('score').value
-      };
-
-      // write to Postgres via Supabase
-      await addScoreToServer(entry);
-
-      // reload the table
-      await loadHistoryFromServer();
-
-      // reset form UI
-      this.reset();
-      setTiming('Timed');
-      updateScorePercentage();
-    });
-    
-    // Subscribe to realtime INSERT events on the 'scores' table
-    supabase
-      .channel('public:scores')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'scores' }, payload => {
-        loadHistoryFromServer();
-      })
-      .subscribe();
-  });
-</script>
 </body>
 </html>
