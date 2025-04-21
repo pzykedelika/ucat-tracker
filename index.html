@@ -6,82 +6,6 @@
   <title>UCAT Scores Tracker</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script type="module">
-    // Import Firebase modules
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
-
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyCb0Ru1X1EUeGVU0GAttLbsEsje_KQJKeo",
-      authDomain: "ucat-e1503.firebaseapp.com",
-      projectId: "ucat-e1503",
-      storageBucket: "ucat-e1503.firebasestorage.app",
-      messagingSenderId: "607003588773",
-      appId: "1:607003588773:web:4bb1c9d5534b4059af754c",
-      measurementId: "G-9R1TST35JH"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-  </script>
-  <script>
-    const auth = firebase.auth();
-    const db   = firebase.firestore();
-
-    // 2) Hook up login UI
-    document.getElementById('btn-login').onclick =
-      () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        document.getElementById('auth-ui').style.display    = 'none';
-        document.getElementById('tracker-ui').style.display = 'block';
-        loadScores();
-      } else {
-        document.getElementById('auth-ui').style.display    = 'block';
-        document.getElementById('tracker-ui').style.display = 'none';
-      }
-    });
-
-    // 3) Read/write scores exactly as before, e.g.:
-    async function loadScores() {
-      const user = auth.currentUser;
-      const tbody = document.getElementById('historyBody');
-      tbody.innerHTML = '';
-      const snapshot = await db.collection('scores')
-        .where('userId', '==', user.uid)
-        .orderBy('date')
-        .get();
-      if (snapshot.empty) {
-        tbody.innerHTML = `<tr id="noScoresRow"><td colspan="5" class="text-center">No scores yet.</td></tr>`;
-      } else {
-        snapshot.forEach(doc => appendHistoryEntry(doc.data()));
-      }
-    }
-
-    async function addScore(entry) {
-      entry.userId = auth.currentUser.uid;
-      await db.collection('scores').add(entry);
-    }
-
-    document.getElementById('scoreForm').addEventListener('submit', async e => {
-      e.preventDefault();
-      const entry = {
-        date: document.getElementById('date').value,
-        section: document.getElementById('section').value,
-        timing: document.getElementById('timing').value,
-        time: document.getElementById('timing').value === 'Timed' ? Number(document.getElementById('time').value) : 0,
-        score: document.getElementById('score').value
-      };
-      await addScore(entry);
-      loadScores();
-      e.target.reset();
-      setTiming('Timed');
-      updateScorePercentage();
-    });
-  </script>
   <script>
     // Function to toggle the display of the time input based on the hidden timing value
     function toggleTimeField() {
@@ -222,6 +146,88 @@
       </div>
     </div>
   </div>
+  </div>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
+    import { getAnalytics } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js';
+    import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
+    import { getFirestore, collection, query, where, orderBy, getDocs, addDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+ 
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: 'AIzaSyCb0Ru1X1EUeGVU0GAttLbsEsje_KQJKeo',
+      authDomain: 'ucat-e1503.firebaseapp.com',
+      projectId: 'ucat-e1503',
+      storageBucket: 'ucat-e1503.firebasestorage.app',
+      messagingSenderId: '607003588773',
+      appId: '1:607003588773:web:4bb1c9d5534b4059af754c',
+      measurementId: 'G-9R1TST35JH'
+    };
+ 
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+ 
+    // UI containers
+    const authUI = document.getElementById('auth-ui');
+    const trackerUI = document.getElementById('tracker-ui');
+    const loginBtn = document.getElementById('btn-login');
+ 
+    // Score table functions (reuse existing appendHistoryEntry)
+    async function loadScores() {
+      const user = auth.currentUser;
+      const tbody = document.getElementById('historyBody');
+      tbody.innerHTML = '';
+      const q = query(
+        collection(db, 'scores'),
+        where('userId', '==', user.uid),
+        orderBy('date')
+      );
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        tbody.innerHTML = `<tr id="noScoresRow"><td colspan="5" class="text-center">No scores yet.</td></tr>`;
+      } else {
+        snap.forEach(doc => appendHistoryEntry(doc.data()));
+      }
+    }
+ 
+    async function addScore(entry) {
+      entry.userId = auth.currentUser.uid;
+      await addDoc(collection(db, 'scores'), entry);
+    }
+ 
+    // Auth state handling
+    loginBtn.addEventListener('click', () => {
+      signInWithPopup(auth, new GoogleAuthProvider());
+    });
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        authUI.style.display = 'none';
+        trackerUI.style.display = 'block';
+        loadScores();
+      } else {
+        authUI.style.display = 'flex';
+        trackerUI.style.display = 'none';
+      }
+    });
+ 
+    // Form submission
+    document.getElementById('scoreForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const entry = {
+        date: document.getElementById('date').value,
+        section: document.getElementById('section').value,
+        timing: document.getElementById('timing').value,
+        time: document.getElementById('timing').value === 'Timed' ? Number(document.getElementById('time').value) : 0,
+        score: document.getElementById('score').value
+      };
+      await addScore(entry);
+      loadScores();
+      e.target.reset(); setTiming('Timed'); updateScorePercentage();
+    });
+  </script>
 </div>
 </body>
 </html>
