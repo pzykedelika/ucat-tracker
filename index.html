@@ -256,9 +256,11 @@
       }, err => {
         console.error('[Firestore] onSnapshot failed:', err);
       });
-      document.getElementById('filterSection').addEventListener('change', renderTable);
-      document.getElementById('filterTiming').addEventListener('change', renderTable);
     }
+
+    // Attach filter event listeners once
+    document.getElementById('filterSection').addEventListener('change', renderTable);
+    document.getElementById('filterTiming').addEventListener('change', renderTable);
 
     function renderTable() {
       const tbody = document.getElementById('historyBody');
@@ -298,24 +300,7 @@
         alert('Failed to delete: ' + err.message);
       }
     }
- 
-    // Auth state handling
-    loginBtn.addEventListener('click', () => {
-      signInWithPopup(auth, new GoogleAuthProvider());
-    });
-    onAuthStateChanged(auth, user => {
-      const userInfo = document.getElementById('user-info');
-      if (user) {
-        authUI.style.display = 'none';
-        trackerUI.style.display = 'block';
-        userInfo.textContent = `👤 ${user.email}`;
-        loadScores();
-      } else {
-        authUI.style.display = 'flex';
-        trackerUI.style.display = 'none';
-        userInfo.textContent = '';
-      }
-    });
+    window.deleteScore = deleteScore;
  
     // Form submission
     document.getElementById('scoreForm').addEventListener('submit', async e => {
