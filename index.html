@@ -65,7 +65,13 @@
   </script>
 </head>
 <body>
-<div id="user-info" class="position-absolute top-0 end-0 m-3 text-end"></div>
+<div class="text-muted text-center small mt-2">Emmanuel made</div>
+<div id="user-info" class="position-absolute top-0 end-0 m-3 text-end">
+  <div class="input-group input-group-sm">
+    <span class="input-group-text">👤</span>
+    <input type="text" id="usernameInput" class="form-control" placeholder="Username">
+  </div>
+</div>
 <!-- Authentication UI -->
 <div id="auth-ui" class="container mt-4">
   <div class="d-flex justify-content-center w-100">
@@ -137,10 +143,6 @@
       <div class="card-body">
         <div class="d-flex mb-3">
           <div class="me-3">
-            <label for="filterText" class="form-label">Search:</label>
-            <input type="text" id="filterText" class="form-control" placeholder="Search...">
-          </div>
-          <div class="me-3">
             <label for="filterRange" class="form-label">Filter by Date Range:</label>
             <select id="filterRange" class="form-select">
               <option value="All">All Time</option>
@@ -160,13 +162,17 @@
               <option value="QR">Quantitative Reasoning</option>
             </select>
           </div>
-          <div>
+          <div class="me-3">
             <label for="filterTiming" class="form-label">Filter by Timing:</label>
             <select id="filterTiming" class="form-select">
               <option value="All">All</option>
               <option value="Timed">Timed</option>
               <option value="Untimed">Untimed</option>
             </select>
+          </div>
+          <div class="me-3">
+            <label for="filterText" class="form-label">Search:</label>
+            <input type="text" id="filterText" class="form-control" placeholder="Search...">
           </div>
         </div>
         <div class="table-responsive">
@@ -292,13 +298,25 @@
       if (user) {
         authUI.style.display    = 'none';
         trackerUI.style.display = 'block';
-        userInfo.textContent    = `👤 ${user.email}`;
+        const usernameInput = document.getElementById('usernameInput');
+        // Load saved username or default to email
+        const saved = localStorage.getItem('username_' + user.uid);
+        usernameInput.value = saved || user.email;
+        usernameInput.style.display = 'inline-block';
         loadScores();
       } else {
         authUI.style.display    = 'flex';
         trackerUI.style.display = 'none';
+        // Hide username input on logout
+        document.getElementById('usernameInput').style.display = 'none';
         userInfo.textContent    = '';
       }
+    });
+
+    // Save username on change
+    document.getElementById('usernameInput').addEventListener('change', () => {
+      const user = auth.currentUser;
+      if (user) localStorage.setItem('username_' + user.uid, document.getElementById('usernameInput').value.trim());
     });
  
     // Load scores for current user via onSnapshot, then sort client-side
