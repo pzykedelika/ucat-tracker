@@ -204,12 +204,12 @@
           </div>
         </div>
         <div class="table-responsive">
-          <table class="table table-striped table-sm">
+          <table class="table table-sm">
             <colgroup>
               <col style="width:7%;" />  <!-- Date -->
               <col style="width:7%;" />  <!-- Section -->
-              <col style="width:10%;" />  <!-- Timing -->
-              <col style="width:7%;" />  <!-- Time -->
+              <col style="width:7%;" />  <!-- Timing -->
+              <col style="width:5%;" />  <!-- Time -->
               <col style="width:15%;" />  <!-- Score (progress bar) -->
               <col style="width:20%;" />  <!-- Review -->
               <col style="width:5%;" />  <!-- Actions -->
@@ -318,7 +318,7 @@
                    style="width: ${percent}%;" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">
               </div>
             </div>
-            <span>${entry.score}</span>
+            <span class="ms-2">${entry.score} (${percent}%)</span>
           </div>
         </td>
         <td>${entry.review || ''}</td>
