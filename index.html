@@ -265,8 +265,11 @@
     function appendHistoryEntry(entry, id) {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td class="text-nowrap p-0">
-          ${entry.date} | ${entry.createdAt?.toDate?.() ? entry.createdAt.toDate().toLocaleTimeString() : ''}
+        <td>
+          ${entry.date}<br>
+          <small class="text-muted">
+            ${entry.createdAt?.toDate?.() ? entry.createdAt.toDate().toLocaleTimeString() : ''}
+          </small>
         </td>
         <td>${entry.section}</td>
         <td>${entry.timing}</td>
