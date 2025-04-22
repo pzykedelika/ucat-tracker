@@ -330,11 +330,13 @@
                    style="width: ${percent}%;" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">
               </div>
             </div>
-            <span class="ms-2">${entry.score} (${percent}%)</span>
+            <span>
+              ${entry.score} <small class="text-muted ms-2">${percent}%</small>
+            </span>
           </div>
         </td>
         <td>${entry.review || ''}</td>
-        <td style="padding-left: 1rem; padding-right: 1rem; vertical-align: middle;">
+        <td style="padding-left: 2rem; padding-right: 1rem; vertical-align: middle;">
           <button class="btn btn-sm btn-outline-danger" onclick="deleteScore('${id}')">🗑️</button>
         </td>
       `;
