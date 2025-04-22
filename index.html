@@ -23,6 +23,10 @@
     .table {
       table-layout: fixed;
     }
+    /* Override Bootstrap success color for progress bars */
+    .progress-bar.bg-success {
+      background-color: #19A861 !important;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
@@ -201,10 +205,10 @@
               <col style="width:7%;" />  <!-- Date -->
               <col style="width:7%;" />  <!-- Section -->
               <col style="width:10%;" />  <!-- Timing -->
-              <col style="width:10%;" />  <!-- Time -->
+              <col style="width:7%;" />  <!-- Time -->
               <col style="width:15%;" />  <!-- Score (progress bar) -->
               <col style="width:20%;" />  <!-- Review -->
-              <col style="width:10%;" />  <!-- Actions -->
+              <col style="width:5%;" />  <!-- Actions -->
             </colgroup>
             <thead>
               <tr>
