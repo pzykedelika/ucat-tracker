@@ -210,9 +210,16 @@
     }
  
     async function addScore(entry) {
-      entry.userId = auth.currentUser.uid;
-      await addDoc(collection(db, 'scores'), entry);
-    }
+  entry.userId = auth.currentUser.uid;
+  try {
+    const docRef = await addDoc(collection(db, 'scores'), entry);
+    console.log('[Firestore] addDoc succeeded, ID:', docRef.id, entry);
+  } catch (err) {
+    console.error('[Firestore] addDoc failed:', err);
+    alert('Failed to save score: ' + err.message);
+    throw err;
+  }
+}
  
     // Auth state handling
     loginBtn.addEventListener('click', () => {
