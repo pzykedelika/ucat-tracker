@@ -192,12 +192,12 @@
         <td class="text-nowrap px-2 py-1">
           ${entry.date} | ${entry.createdAt?.toDate?.() ? entry.createdAt.toDate().toLocaleTimeString() : ''}
         </td>
-        <td>${entry.section}</td>
+        <td class="text-center">${entry.section}</td>
         <td>${entry.timing}</td>
         <td>${entry.time}</td>
         <td>${entry.score}</td>
         <td>${entry.review || ''}</td>
-        <td>
+        <td class="text-center">
           <button class="btn btn-sm btn-outline-danger" onclick="deleteScore('${id}')">🗑️</button>
         </td>
       `;
