@@ -69,7 +69,7 @@
     <div class="text-muted small">Emmanuel made</div>
     <div id="user-info">
       <div class="input-group input-group-sm">
-        <span class="input-group-text">👤</span>
+        <span class="input-group-text">😹</span>
         <input type="text" id="usernameInput" class="form-control" placeholder="Username">
       </div>
     </div>
@@ -255,7 +255,7 @@
     function appendHistoryEntry(entry, id) {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td class="text-nowrap px-2 py-1">
+        <td class="text-nowrap ps-1 pe-2">
           ${entry.date} | ${entry.createdAt?.toDate?.() ? entry.createdAt.toDate().toLocaleTimeString() : ''}
         </td>
         <td>${entry.section}</td>
