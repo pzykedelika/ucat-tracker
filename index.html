@@ -225,7 +225,6 @@
     loginBtn.addEventListener('click', () => signInWithPopup(auth, new GoogleAuthProvider()));
     onAuthStateChanged(auth, user => {
       const userInfo = document.getElementById('user-info');
-      console.log('[Auth] user:', user ? user.uid : null);
       if (user) {
         authUI.style.display    = 'none';
         trackerUI.style.display = 'block';
@@ -250,10 +249,14 @@
       const q = query(scoresRef, where('userId', '==', user.uid));
       // Subscribe to real-time updates
       onSnapshot(q, snapshot => {
-        console.log('[Firestore] snapshot docs count:', snapshot.docs.length);
         allEntries = snapshot.docs
           .map(docSnap => ({ id: docSnap.id, data: docSnap.data() }))
-          .sort((a, b) => new Date(b.data.createdAt.toDate()) - new Date(a.data.createdAt.toDate()));
+          .sort((a, b) => {
+            // Safely extract creation timestamps, default to epoch
+            const aDate = a.data.createdAt?.toDate?.() || new Date(0);
+            const bDate = b.data.createdAt?.toDate?.() || new Date(0);
+            return bDate - aDate;
+          });
         renderTable();
       }, err => {
         console.error('[Firestore] onSnapshot failed:', err);
@@ -268,9 +271,6 @@
       const tbody = document.getElementById('historyBody');
       const sectionFilter = document.getElementById('filterSection').value;
       const timingFilter  = document.getElementById('filterTiming').value;
-      console.log('[Render] allEntries length:', allEntries.length,
-                  'sectionFilter:', sectionFilter,
-                  'timingFilter:', timingFilter);
       tbody.innerHTML = '';
       const filtered = allEntries.filter(({ data }) => {
         return (sectionFilter === 'All' || data.section === sectionFilter)
