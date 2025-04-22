@@ -193,21 +193,30 @@
  
     // Score table functions (reuse existing appendHistoryEntry)
     async function loadScores() {
-      const user = auth.currentUser;
-      const tbody = document.getElementById('historyBody');
-      tbody.innerHTML = '';
-      const q = query(
-        collection(db, 'scores'),
-        where('userId', '==', user.uid),
-        orderBy('date')
-      );
-      const snap = await getDocs(q);
-      if (snap.empty) {
-        tbody.innerHTML = `<tr id="noScoresRow"><td colspan="5" class="text-center">No scores yet.</td></tr>`;
-      } else {
-        snap.forEach(doc => appendHistoryEntry(doc.data()));
-      }
+  const user = auth.currentUser;
+  const tbody = document.getElementById('historyBody');
+  tbody.innerHTML = '';
+  try {
+    const q = query(
+      collection(db, 'scores'),
+      where('userId', '==', user.uid),
+      orderBy('date')
+    );
+    const snap = await getDocs(q);
+    console.log('[Firestore] getDocs returned', snap.docs.length, 'docs');
+    if (snap.empty) {
+      tbody.innerHTML = `<tr id="noScoresRow"><td colspan="5" class="text-center">No scores yet.</td></tr>`;
+    } else {
+      snap.forEach(doc => {
+        console.log('[Firestore] doc:', doc.id, doc.data());
+        appendHistoryEntry(doc.data());
+      });
     }
+  } catch (err) {
+    console.error('[Firestore] getDocs failed:', err);
+    alert('Failed to load scores: ' + err.message);
+  }
+}
  
     async function addScore(entry) {
   entry.userId = auth.currentUser.uid;
