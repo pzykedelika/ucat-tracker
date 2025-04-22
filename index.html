@@ -168,6 +168,45 @@
       `;
       document.getElementById('historyBody').appendChild(tr);
     }
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: 'AIzaSyCb0Ru1X1EUeGVU0GAttLbsEsje_KQJKeo',
+      authDomain: 'ucat-e1503.firebaseapp.com',
+      projectId: 'ucat-e1503',
+      storageBucket: 'ucat-e1503.firebasestorage.app',
+      messagingSenderId: '607003588773',
+      appId: '1:607003588773:web:4bb1c9d5534b4059af754c',
+      measurementId: 'G-9R1TST35JH'
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    // UI containers
+    document.getElementById('btn-login');
+    const authUI    = document.getElementById('auth-ui');
+    const trackerUI = document.getElementById('tracker-ui');
+    const loginBtn  = document.getElementById('btn-login');
+
+    // Auth state handling
+    loginBtn.addEventListener('click', () => signInWithPopup(auth, new GoogleAuthProvider()));
+    onAuthStateChanged(auth, user => {
+      const userInfo = document.getElementById('user-info');
+      if (user) {
+        authUI.style.display    = 'none';
+        trackerUI.style.display = 'block';
+        userInfo.textContent    = `👤 ${user.email}`;
+        loadScores();
+      } else {
+        authUI.style.display    = 'flex';
+        trackerUI.style.display = 'none';
+        userInfo.textContent    = '';
+      }
+    });
  
     // Load scores for current user via onSnapshot, then sort client-side
     function loadScores() {
