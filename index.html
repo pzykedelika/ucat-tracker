@@ -27,6 +27,10 @@
     .progress-bar.bg-success {
       background-color: #19A861 !important;
     }
+    /* Change unfilled progress bar background */
+    .progress {
+      background-color: #E5E5E5 !important;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
@@ -285,6 +289,11 @@
     // Helper to render one score row
     function appendHistoryEntry(entry, id) {
       const tr = document.createElement('tr');
+      // Format createdAt timestamp as 12‑hour time with am/pm
+      const rawDate = entry.createdAt?.toDate?.();
+      const timeStr = rawDate
+        ? rawDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true })
+        : '';
       // Compute score percentage and decide color
       const [obtained, total] = entry.score.split('/').map(Number);
       const percent = total > 0 ? Math.round((obtained / total) * 100) : 0;
@@ -296,7 +305,7 @@
         <td>
           ${entry.date}<br>
           <small class="text-muted">
-            ${entry.createdAt?.toDate?.() ? entry.createdAt.toDate().toLocaleTimeString() : ''}
+            ${timeStr}
           </small>
         </td>
         <td>${entry.section}</td>
