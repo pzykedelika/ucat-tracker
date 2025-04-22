@@ -138,11 +138,13 @@
                 <th>Timing</th>
                 <th>Time</th>
                 <th>Score</th>
+                <th>Added</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="historyBody">
               <tr id="noScoresRow">
-                <td colspan="5" class="text-center">No scores yet.</td>
+                <td colspan="7" class="text-center">No scores yet.</td>
               </tr>
             </tbody>
           </table>
@@ -155,16 +157,21 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
     import { getAnalytics } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js';
     import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
-    import { getFirestore, collection, query, where, orderBy, getDocs, addDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+    import { getFirestore, collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
     // Helper to render one score row
-    function appendHistoryEntry(entry) {
+    function appendHistoryEntry(entry, id) {
       const tr = document.createElement('tr');
+      const timestamp = entry.createdAt && entry.createdAt.toDate
+        ? entry.createdAt.toDate().toLocaleString()
+        : '';
       tr.innerHTML = `
         <td>${entry.date}</td>
         <td>${entry.section}</td>
         <td>${entry.timing}</td>
         <td>${entry.time}</td>
         <td>${entry.score}</td>
+        <td>${timestamp}</td>
+        <td><button class="btn btn-sm btn-outline-danger" onclick="deleteScore('${id}')">🗑️</button></td>
       `;
       document.getElementById('historyBody').appendChild(tr);
     }
@@ -221,16 +228,14 @@
       // Subscribe to real-time updates
       onSnapshot(q, snapshot => {
         // Reset table body each update
+        const entries = snapshot.docs
+          .map(docSnap => ({ id: docSnap.id, data: docSnap.data() }))
+          .sort((a, b) => new Date(a.data.date) - new Date(b.data.date));
         tbody.innerHTML = '';
-        if (snapshot.empty) {
-          tbody.innerHTML = `<tr id="noScoresRow"><td colspan="5" class="text-center">No scores yet.</td></tr>`;
+        if (entries.length === 0) {
+          tbody.innerHTML = `<tr id="noScoresRow"><td colspan="7" class="text-center">No scores yet.</td></tr>`;
         } else {
-          // Extract data and sort by date field
-          const entries = snapshot.docs
-            .map(doc => doc.data())
-            .sort((a, b) => new Date(a.date) - new Date(b.date));
-          // Render in order
-          entries.forEach(entry => appendHistoryEntry(entry));
+          entries.forEach(({ data, id }) => appendHistoryEntry(data, id));
         }
       }, err => {
         console.error('[Firestore] onSnapshot failed:', err);
@@ -238,16 +243,27 @@
     }
  
     async function addScore(entry) {
-  entry.userId = auth.currentUser.uid;
-  try {
-    const docRef = await addDoc(collection(db, 'scores'), entry);
-    console.log('[Firestore] addDoc succeeded, ID:', docRef.id, entry);
-  } catch (err) {
-    console.error('[Firestore] addDoc failed:', err);
-    alert('Failed to save score: ' + err.message);
-    throw err;
-  }
-}
+      entry.userId = auth.currentUser.uid;
+      entry.createdAt = serverTimestamp();
+      try {
+        const docRef = await addDoc(collection(db, 'scores'), entry);
+        console.log('[Firestore] addDoc succeeded, ID:', docRef.id, entry);
+      } catch (err) {
+        console.error('[Firestore] addDoc failed:', err);
+        alert('Failed to save score: ' + err.message);
+        throw err;
+      }
+    }
+
+    async function deleteScore(id) {
+      try {
+        await deleteDoc(doc(db, 'scores', id));
+        console.log('[Firestore] deleted', id);
+      } catch (err) {
+        console.error('[Firestore] delete failed:', err);
+        alert('Failed to delete: ' + err.message);
+      }
+    }
  
     // Auth state handling
     loginBtn.addEventListener('click', () => {
