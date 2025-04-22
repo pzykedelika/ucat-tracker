@@ -55,6 +55,30 @@
       height: 2rem;        /* fixed height */
       cursor: pointer;     /* indicate clickable */
     }
+
+    /* Sticky note overlay */
+    #noteOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1050;
+    }
+    .sticky-note {
+      background: #fff8a3;
+      border: 1px solid #e0db7d;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 1rem;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow: auto;
+      position: relative;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
@@ -560,36 +584,42 @@
   </script>
 </div>
 </div>
-<!-- Review Modal -->
-<div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Review Notes</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p id="modalReviewText"></p>
-      </div>
-    </div>
+<!-- Sticky-note overlay for Reviews -->
+<div id="noteOverlay">
+  <div class="sticky-note">
+    <button id="noteClose" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Close"></button>
+    <div id="noteContent" style="white-space: pre-wrap;"></div>
   </div>
 </div>
-<!-- Bootstrap JS Bundle (for modal functionality) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// After rendering rows in renderTable(), attach click listeners
-// (Needs to run after table is rendered)
-const origRenderTable = renderTable;
-renderTable = function() {
-  origRenderTable.apply(this, arguments);
+// Show sticky-note overlay on review click
+function initReviewOverlay() {
+  const overlay = document.getElementById('noteOverlay');
+  const content = document.getElementById('noteContent');
+  const closeBtn = document.getElementById('noteClose');
+  // Close button
+  closeBtn.addEventListener('click', () => {
+    overlay.style.display = 'none';
+  });
+  // Clicking outside the note also closes
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.style.display = 'none';
+  });
+  // Attach to each review-cell
   document.querySelectorAll('.review-cell').forEach(ta => {
+    ta.style.cursor = 'pointer';
     ta.addEventListener('click', () => {
-      document.getElementById('modalReviewText').textContent = ta.value;
-      const modalEl = document.getElementById('reviewModal');
-      const modal = new bootstrap.Modal(modalEl);
-      modal.show();
+      content.textContent = ta.value;
+      overlay.style.display = 'flex';
     });
   });
+}
+// Call after initial render and on subsequent renders
+initReviewOverlay();
+const origRenderTable = renderTable;
+renderTable = function() {
+  origRenderTable();
+  initReviewOverlay();
 };
 </script>
 </body>
