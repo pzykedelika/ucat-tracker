@@ -168,7 +168,7 @@
             </thead>
             <tbody id="historyBody">
               <tr id="noScoresRow">
-                <td colspan="7" class="text-center">No scores yet.</td>
+                <td colspan="6" class="text-center">No scores yet.</td>
               </tr>
             </tbody>
           </table>
@@ -187,26 +187,22 @@
 
     // Helper to render one score row
     function appendHistoryEntry(entry, id) {
-  const tr = document.createElement('tr');
-  // Only pull out the time, and format with a separator
-  const timestamp = entry.createdAt?.toDate?.()
-    ? entry.createdAt.toDate().toLocaleTimeString()
-    : '';
-  tr.innerHTML = `
-    <td class="text-nowrap" style="padding: .5rem .75rem;">
-      ${entry.date} | ${timestamp}
-    </td>
-    <td>${entry.section}</td>
-    <td>${entry.timing}</td>
-    <td>${entry.time}</td>
-    <td>${entry.score}</td>
-    <td>${entry.review || ''}</td>
-    <td>
-      <button class="btn btn-sm btn-outline-danger" onclick="deleteScore('${id}')">🗑️</button>
-    </td>
-  `;
-  document.getElementById('historyBody').appendChild(tr);
-}
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="text-nowrap px-2 py-1">
+          ${entry.date} | ${entry.createdAt?.toDate?.() ? entry.createdAt.toDate().toLocaleTimeString() : ''}
+        </td>
+        <td>${entry.section}</td>
+        <td>${entry.timing}</td>
+        <td>${entry.time}</td>
+        <td>${entry.score}</td>
+        <td>${entry.review || ''}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteScore('${id}')">🗑️</button>
+        </td>
+      `;
+      document.getElementById('historyBody').appendChild(tr);
+    }
 
     // Firebase config
     const firebaseConfig = {
@@ -287,7 +283,7 @@
             && (timingFilter  === 'All' || data.timing  === timingFilter);
       });
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr id="noScoresRow"><td colspan="7" class="text-center">No scores found.</td></tr>`;
+        tbody.innerHTML = `<tr id="noScoresRow"><td colspan="6" class="text-center">No scores found.</td></tr>`;
       } else {
         filtered.forEach(({ data, id }) => appendHistoryEntry(data, id));
       }
