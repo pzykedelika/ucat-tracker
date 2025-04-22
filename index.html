@@ -157,13 +157,12 @@
                 <th>Timing</th>
                 <th>Time</th>
                 <th>Score</th>
-                <th>Added</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody id="historyBody">
               <tr id="noScoresRow">
-                <td colspan="7" class="text-center">No scores yet.</td>
+                <td colspan="6" class="text-center">No scores yet.</td>
               </tr>
             </tbody>
           </table>
@@ -187,13 +186,17 @@
         ? entry.createdAt.toDate().toLocaleString()
         : '';
       tr.innerHTML = `
-        <td>${entry.date}</td>
+        <td>
+          ${entry.date}<br>
+          <small class="text-muted">${timestamp}</small>
+        </td>
         <td>${entry.section}</td>
         <td>${entry.timing}</td>
         <td>${entry.time}</td>
         <td>${entry.score}</td>
-        <td>${timestamp}</td>
-        <td><button class="btn btn-sm btn-outline-danger" onclick="deleteScore('${id}')">🗑️</button></td>
+        <td>
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteScore('${id}')">🗑️</button>
+        </td>
       `;
       document.getElementById('historyBody').appendChild(tr);
     }
@@ -277,7 +280,7 @@
             && (timingFilter  === 'All' || data.timing  === timingFilter);
       });
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr id="noScoresRow"><td colspan="7" class="text-center">No scores found.</td></tr>`;
+        tbody.innerHTML = `<tr id="noScoresRow"><td colspan="6" class="text-center">No scores found.</td></tr>`;
       } else {
         filtered.forEach(({ data, id }) => appendHistoryEntry(data, id));
       }
