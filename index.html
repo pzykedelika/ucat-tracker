@@ -183,7 +183,7 @@
     function appendHistoryEntry(entry, id) {
       const tr = document.createElement('tr');
       const timestamp = entry.createdAt && entry.createdAt.toDate
-        ? entry.createdAt.toDate().toLocaleString()
+        ? entry.createdAt.toDate().toLocaleTimeString()
         : '';
       tr.innerHTML = `
         <td>${entry.date} ${timestamp}</td>
