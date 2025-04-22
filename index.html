@@ -380,7 +380,16 @@
         </td>
       `;
       document.getElementById('historyBody').appendChild(tr);
-      // No auto-resize or listeners for review textarea
+      // Attach overlay click on this row's review textarea
+      const overlay = document.getElementById('noteOverlay');
+      const noteContent = document.getElementById('noteContent');
+      const ta = tr.querySelector('.review-cell');
+      if (ta) {
+        ta.addEventListener('click', () => {
+          noteContent.textContent = ta.value;
+          overlay.style.display = 'flex';
+        });
+      }
     }
 
     // Firebase config
@@ -584,6 +593,7 @@
   </script>
 </div>
 </div>
+</div>
 <!-- Sticky-note overlay for Reviews -->
 <div id="noteOverlay">
   <div class="sticky-note">
@@ -592,35 +602,13 @@
   </div>
 </div>
 <script>
-// Show sticky-note overlay on review click
-function initReviewOverlay() {
-  const overlay = document.getElementById('noteOverlay');
-  const content = document.getElementById('noteContent');
-  const closeBtn = document.getElementById('noteClose');
-  // Close button
-  closeBtn.addEventListener('click', () => {
-    overlay.style.display = 'none';
-  });
-  // Clicking outside the note also closes
-  overlay.addEventListener('click', e => {
-    if (e.target === overlay) overlay.style.display = 'none';
-  });
-  // Attach to each review-cell
-  document.querySelectorAll('.review-cell').forEach(ta => {
-    ta.style.cursor = 'pointer';
-    ta.addEventListener('click', () => {
-      content.textContent = ta.value;
-      overlay.style.display = 'flex';
-    });
-  });
-}
-// Call after initial render and on subsequent renders
-initReviewOverlay();
-const origRenderTable = renderTable;
-renderTable = function() {
-  origRenderTable();
-  initReviewOverlay();
-};
+// Only handle overlay close logic globally (not review open, which is now per-row)
+document.getElementById('noteClose').addEventListener('click', function() {
+  document.getElementById('noteOverlay').style.display = 'none';
+});
+document.getElementById('noteOverlay').addEventListener('click', function(e) {
+  if (e.target === this) this.style.display = 'none';
+});
 </script>
 </body>
 </html>
