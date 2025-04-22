@@ -186,10 +186,7 @@
         ? entry.createdAt.toDate().toLocaleString()
         : '';
       tr.innerHTML = `
-        <td>
-          ${entry.date}<br>
-          <small class="text-muted">${timestamp}</small>
-        </td>
+        <td>${entry.date} ${timestamp}</td>
         <td>${entry.section}</td>
         <td>${entry.timing}</td>
         <td>${entry.time}</td>
