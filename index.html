@@ -129,6 +129,25 @@
     <div class="card">
       <div class="card-header">Score History</div>
       <div class="card-body">
+        <div class="d-flex mb-3">
+          <div class="me-3">
+            <label for="filterSection" class="form-label">Filter Section:</label>
+            <select id="filterSection" class="form-select">
+              <option value="All">All</option>
+              <option value="VR">Verbal Reasoning</option>
+              <option value="DM">Decision Making</option>
+              <option value="QR">Quantitative Reasoning</option>
+            </select>
+          </div>
+          <div>
+            <label for="filterTiming" class="form-label">Filter Timing:</label>
+            <select id="filterTiming" class="form-select">
+              <option value="All">All</option>
+              <option value="Timed">Timed</option>
+              <option value="Untimed">Untimed</option>
+            </select>
+          </div>
+        </div>
         <div class="table-responsive">
           <table class="table table-striped">
             <thead>
@@ -158,6 +177,9 @@
     import { getAnalytics } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js';
     import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
     import { getFirestore, collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+
+    let allEntries = [];
+
     // Helper to render one score row
     function appendHistoryEntry(entry, id) {
       const tr = document.createElement('tr');
@@ -227,19 +249,31 @@
       const q = query(scoresRef, where('userId', '==', user.uid));
       // Subscribe to real-time updates
       onSnapshot(q, snapshot => {
-        // Reset table body each update
-        const entries = snapshot.docs
+        allEntries = snapshot.docs
           .map(docSnap => ({ id: docSnap.id, data: docSnap.data() }))
-          .sort((a, b) => new Date(a.data.date) - new Date(b.data.date));
-        tbody.innerHTML = '';
-        if (entries.length === 0) {
-          tbody.innerHTML = `<tr id="noScoresRow"><td colspan="7" class="text-center">No scores yet.</td></tr>`;
-        } else {
-          entries.forEach(({ data, id }) => appendHistoryEntry(data, id));
-        }
+          .sort((a, b) => new Date(b.data.createdAt.toDate()) - new Date(a.data.createdAt.toDate()));
+        renderTable();
       }, err => {
         console.error('[Firestore] onSnapshot failed:', err);
       });
+      document.getElementById('filterSection').addEventListener('change', renderTable);
+      document.getElementById('filterTiming').addEventListener('change', renderTable);
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('historyBody');
+      const sectionFilter = document.getElementById('filterSection').value;
+      const timingFilter  = document.getElementById('filterTiming').value;
+      tbody.innerHTML = '';
+      const filtered = allEntries.filter(({ data }) => {
+        return (sectionFilter === 'All' || data.section === sectionFilter)
+            && (timingFilter  === 'All' || data.timing  === timingFilter);
+      });
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr id="noScoresRow"><td colspan="7" class="text-center">No scores found.</td></tr>`;
+      } else {
+        filtered.forEach(({ data, id }) => appendHistoryEntry(data, id));
+      }
     }
  
     async function addScore(entry) {
