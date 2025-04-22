@@ -44,7 +44,7 @@
       padding-left: 1rem !important;
     }
 
-    /* Auto-expanding review fields */
+    /* Fixed-height review fields, clickable */
     .review-cell {
       width: 100%;
       border: none;
@@ -52,6 +52,8 @@
       resize: none;
       overflow: hidden;
       font: inherit;
+      height: 2rem;        /* fixed height */
+      cursor: pointer;     /* indicate clickable */
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -304,11 +306,6 @@
     import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
     import { getFirestore, collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
 
-    // Auto-resize textarea to fit content
-    function autoResizeTextarea(ta) {
-      ta.style.height = 'auto';
-      ta.style.height = ta.scrollHeight + 'px';
-    }
 
     let chartVR, chartDM, chartQR;
     let allEntries = [];
@@ -359,13 +356,7 @@
         </td>
       `;
       document.getElementById('historyBody').appendChild(tr);
-      // Auto-resize the review textarea in the history row
-      const ta = tr.querySelector('.review-cell');
-      if (ta) {
-        autoResizeTextarea(ta);
-        ta.addEventListener('focus', () => autoResizeTextarea(ta));
-        ta.addEventListener('input', () => autoResizeTextarea(ta));
-      }
+      // No auto-resize or listeners for review textarea
     }
 
     // Firebase config
@@ -565,15 +556,41 @@
       e.target.reset(); setTiming('Timed'); updateScorePercentage();
     });
 
-    // Auto-resize the form review textarea
-    const reviewFormTa = document.getElementById('review');
-    if (reviewFormTa) {
-      autoResizeTextarea(reviewFormTa);
-      reviewFormTa.addEventListener('focus', () => autoResizeTextarea(reviewFormTa));
-      reviewFormTa.addEventListener('input', () => autoResizeTextarea(reviewFormTa));
-    }
+    // Remove auto-resize for form review textarea
   </script>
 </div>
 </div>
+<!-- Review Modal -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Review Notes</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="modalReviewText"></p>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Bootstrap JS Bundle (for modal functionality) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// After rendering rows in renderTable(), attach click listeners
+// (Needs to run after table is rendered)
+const origRenderTable = renderTable;
+renderTable = function() {
+  origRenderTable.apply(this, arguments);
+  document.querySelectorAll('.review-cell').forEach(ta => {
+    ta.addEventListener('click', () => {
+      document.getElementById('modalReviewText').textContent = ta.value;
+      const modalEl = document.getElementById('reviewModal');
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    });
+  });
+};
+</script>
 </body>
 </html>
