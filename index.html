@@ -181,22 +181,25 @@
 
     // Helper to render one score row
     function appendHistoryEntry(entry, id) {
-      const tr = document.createElement('tr');
-      const timestamp = entry.createdAt && entry.createdAt.toDate
-        ? entry.createdAt.toDate().toLocaleTimeString()
-        : '';
-      tr.innerHTML = `
-        <td>${entry.date} ${timestamp}</td>
-        <td>${entry.section}</td>
-        <td>${entry.timing}</td>
-        <td>${entry.time}</td>
-        <td>${entry.score}</td>
-        <td>
-          <button class="btn btn-sm btn-outline-danger" onclick="deleteScore('${id}')">🗑️</button>
-        </td>
-      `;
-      document.getElementById('historyBody').appendChild(tr);
-    }
+  const tr = document.createElement('tr');
+  // Only pull out the time, and format with a separator
+  const timestamp = entry.createdAt?.toDate?.()
+    ? entry.createdAt.toDate().toLocaleTimeString()
+    : '';
+  tr.innerHTML = `
+    <td class="text-nowrap" style="padding: .5rem .75rem;">
+      ${entry.date} | ${timestamp}
+    </td>
+    <td>${entry.section}</td>
+    <td>${entry.timing}</td>
+    <td>${entry.time}</td>
+    <td>${entry.score}</td>
+    <td>
+      <button class="btn btn-sm btn-outline-danger" onclick="deleteScore('${id}')">🗑️</button>
+    </td>
+  `;
+  document.getElementById('historyBody').appendChild(tr);
+}
 
     // Firebase config
     const firebaseConfig = {
