@@ -78,7 +78,7 @@
     <div class="mx-auto" style="max-width:2000px; border:1px solid #ccc; padding:1rem;">
     <!-- Card for entering a new score -->
     <div class="card mb-4">
-      <div class="card-header">Enter New Score</div>
+      <div class="card-header">Enter Your Score</div>
       <div class="card-body">
         <form id="scoreForm">
           <!-- A single row of "auto" columns so that each label+input lines up horizontally -->
@@ -136,6 +136,17 @@
       <div class="card-header">Score History</div>
       <div class="card-body">
         <div class="d-flex mb-3">
+          <div class="me-3">
+            <label for="filterRange" class="form-label">Filter by Date Range:</label>
+            <select id="filterRange" class="form-select">
+              <option value="All">All Time</option>
+              <option value="3days">Past 3 Days</option>
+              <option value="1week">Past Week</option>
+              <option value="1month">Past Month</option>
+              <option value="3months">Past 3 Months</option>
+              <option value="6months">Past 6 Months</option>
+            </select>
+          </div>
           <div class="me-3">
             <label for="filterSection" class="form-label">Filter by Section:</label>
             <select id="filterSection" class="form-select">
@@ -318,15 +329,29 @@
     document.getElementById('filterVRTiming').addEventListener('change', renderTable);
     document.getElementById('filterDMTiming').addEventListener('change', renderTable);
     document.getElementById('filterQRTiming').addEventListener('change', renderTable);
+    document.getElementById('filterRange').addEventListener('change', renderTable);
 
     function renderTable() {
       const tbody = document.getElementById('historyBody');
       const sectionFilter = document.getElementById('filterSection').value;
       const timingFilter  = document.getElementById('filterTiming').value;
+      const rangeFilter = document.getElementById('filterRange').value;
+      let threshold = null;
+      const now = new Date();
+      switch (rangeFilter) {
+        case '3days':   threshold = new Date(now - 3*24*60*60*1000); break;
+        case '1week':   threshold = new Date(now - 7*24*60*60*1000); break;
+        case '1month':  threshold = new Date(now.setMonth(now.getMonth() - 1)); break;
+        case '3months': threshold = new Date(now.setMonth(now.getMonth() - 3)); break;
+        case '6months': threshold = new Date(now.setMonth(now.getMonth() - 6)); break;
+        default:        threshold = null;
+      }
       tbody.innerHTML = '';
       const filtered = allEntries.filter(({ data }) => {
-        return (sectionFilter === 'All' || data.section === sectionFilter)
-            && (timingFilter  === 'All' || data.timing  === timingFilter);
+        const sectionOk = (sectionFilter === 'All' || data.section === sectionFilter);
+        const timingOk  = (timingFilter  === 'All' || data.timing  === timingFilter);
+        const dateOk = !threshold || (data.createdAt?.toDate?.() >= threshold);
+        return sectionOk && timingOk && dateOk;
       });
       if (filtered.length === 0) {
         tbody.innerHTML = `<tr id="noScoresRow"><td colspan="6" class="text-center">No scores found.</td></tr>`;
@@ -335,8 +360,8 @@
       }
       // updateChart(filtered);  // Removed single-chart code
       chartVR = updateSectionChart('VR', document.getElementById('filterVRTiming').value, chartVR, 'chartVR');
-chartDM = updateSectionChart('DM', document.getElementById('filterDMTiming').value, chartDM, 'chartDM');
-chartQR = updateSectionChart('QR', document.getElementById('filterQRTiming').value, chartQR, 'chartQR');
+      chartDM = updateSectionChart('DM', document.getElementById('filterDMTiming').value, chartDM, 'chartDM');
+      chartQR = updateSectionChart('QR', document.getElementById('filterQRTiming').value, chartQR, 'chartQR');
     }
 
     // updateChart function removed (single-chart code)
