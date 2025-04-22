@@ -169,54 +169,34 @@
       document.getElementById('historyBody').appendChild(tr);
     }
  
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: 'AIzaSyCb0Ru1X1EUeGVU0GAttLbsEsje_KQJKeo',
-      authDomain: 'ucat-e1503.firebaseapp.com',
-      projectId: 'ucat-e1503',
-      storageBucket: 'ucat-e1503.firebasestorage.app',
-      messagingSenderId: '607003588773',
-      appId: '1:607003588773:web:4bb1c9d5534b4059af754c',
-      measurementId: 'G-9R1TST35JH'
-    };
- 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
- 
-    // UI containers
-    const authUI = document.getElementById('auth-ui');
-    const trackerUI = document.getElementById('tracker-ui');
-    const loginBtn = document.getElementById('btn-login');
- 
-    // Score table functions (reuse existing appendHistoryEntry)
-    async function loadScores() {
-  const user = auth.currentUser;
-  const tbody = document.getElementById('historyBody');
-  tbody.innerHTML = '';
-  try {
-    const q = query(
-      collection(db, 'scores'),
-      where('userId', '==', user.uid),
-      orderBy('date')
-    );
-    const snap = await getDocs(q);
-    console.log('[Firestore] getDocs returned', snap.docs.length, 'docs');
-    if (snap.empty) {
-      tbody.innerHTML = `<tr id="noScoresRow"><td colspan="5" class="text-center">No scores yet.</td></tr>`;
-    } else {
-      snap.forEach(doc => {
-        console.log('[Firestore] doc:', doc.id, doc.data());
-        appendHistoryEntry(doc.data());
+    // Load scores for current user via onSnapshot, then sort client-side
+    function loadScores() {
+      const user = auth.currentUser;
+      if (!user) return;
+      const tbody = document.getElementById('historyBody');
+      // Clear existing rows
+      tbody.innerHTML = '';
+      // Build a query for this user's docs (no orderBy)
+      const scoresRef = collection(db, 'scores');
+      const q = query(scoresRef, where('userId', '==', user.uid));
+      // Subscribe to real-time updates
+      onSnapshot(q, snapshot => {
+        // Reset table body each update
+        tbody.innerHTML = '';
+        if (snapshot.empty) {
+          tbody.innerHTML = `<tr id="noScoresRow"><td colspan="5" class="text-center">No scores yet.</td></tr>`;
+        } else {
+          // Extract data and sort by date field
+          const entries = snapshot.docs
+            .map(doc => doc.data())
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+          // Render in order
+          entries.forEach(entry => appendHistoryEntry(entry));
+        }
+      }, err => {
+        console.error('[Firestore] onSnapshot failed:', err);
       });
     }
-  } catch (err) {
-    console.error('[Firestore] getDocs failed:', err);
-    alert('Failed to load scores: ' + err.message);
-  }
-}
  
     async function addScore(entry) {
   entry.userId = auth.currentUser.uid;
