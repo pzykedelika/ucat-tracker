@@ -224,7 +224,7 @@
               <col style="width:5%;" />  <!-- Time -->
               <col style="width:15%;" />  <!-- Score (progress bar) -->
               <col style="width:20%;" />  <!-- Review -->
-              <col style="width:5%;" />  <!-- Actions -->
+              <col style="width:5%;" />  <!-- Delete -->
             </colgroup>
             <thead>
               <tr>
@@ -234,7 +234,7 @@
                 <th>Time</th>
                 <th>Score</th>
                 <th>Review</th>
-                <th>Actions</th>
+                <th>Delete</th>
               </tr>
             </thead>
             <tbody id="historyBody">
@@ -334,7 +334,7 @@
           </div>
         </td>
         <td>${entry.review || ''}</td>
-        <td class="text-center">
+        <td style="padding-left: 1rem; padding-right: 1rem; vertical-align: middle;">
           <button class="btn btn-sm btn-outline-danger" onclick="deleteScore('${id}')">🗑️</button>
         </td>
       `;
