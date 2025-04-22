@@ -264,6 +264,13 @@
     // Helper to render one score row
     function appendHistoryEntry(entry, id) {
       const tr = document.createElement('tr');
+      // Compute score percentage and decide color
+      const [obtained, total] = entry.score.split('/').map(Number);
+      const percent = total > 0 ? Math.round((obtained / total) * 100) : 0;
+      let barClass;
+      if (percent < 50) barClass = 'bg-danger';
+      else if (percent < 80) barClass = 'bg-warning';
+      else barClass = 'bg-success';
       tr.innerHTML = `
         <td>
           ${entry.date}<br>
@@ -274,7 +281,16 @@
         <td>${entry.section}</td>
         <td>${entry.timing}</td>
         <td>${entry.time}</td>
-        <td>${entry.score}</td>
+        <td>
+          <div class="d-flex align-items-center">
+            <div class="progress flex-grow-1 me-2" style="height: 1rem;">
+              <div class="progress-bar ${barClass}" role="progressbar"
+                   style="width: ${percent}%;" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100">
+              </div>
+            </div>
+            <span>${entry.score}</span>
+          </div>
+        </td>
         <td>${entry.review || ''}</td>
         <td>
           <button class="btn btn-sm btn-outline-danger" onclick="deleteScore('${id}')">🗑️</button>
