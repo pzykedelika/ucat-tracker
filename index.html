@@ -137,6 +137,10 @@
       <div class="card-body">
         <div class="d-flex mb-3">
           <div class="me-3">
+            <label for="filterText" class="form-label">Search:</label>
+            <input type="text" id="filterText" class="form-control" placeholder="Search...">
+          </div>
+          <div class="me-3">
             <label for="filterRange" class="form-label">Filter by Date Range:</label>
             <select id="filterRange" class="form-select">
               <option value="All">All Time</option>
@@ -330,12 +334,14 @@
     document.getElementById('filterDMTiming').addEventListener('change', renderTable);
     document.getElementById('filterQRTiming').addEventListener('change', renderTable);
     document.getElementById('filterRange').addEventListener('change', renderTable);
+    document.getElementById('filterText').addEventListener('input', renderTable);
 
     function renderTable() {
       const tbody = document.getElementById('historyBody');
       const sectionFilter = document.getElementById('filterSection').value;
       const timingFilter  = document.getElementById('filterTiming').value;
       const rangeFilter = document.getElementById('filterRange').value;
+      const textFilter = document.getElementById('filterText').value.trim().toLowerCase();
       let threshold = null;
       const now = new Date();
       switch (rangeFilter) {
@@ -351,7 +357,10 @@
         const sectionOk = (sectionFilter === 'All' || data.section === sectionFilter);
         const timingOk  = (timingFilter  === 'All' || data.timing  === timingFilter);
         const dateOk = !threshold || (data.createdAt?.toDate?.() >= threshold);
-        return sectionOk && timingOk && dateOk;
+        const combined = [data.date, data.section, data.timing, data.time, data.score, data.review || '']
+          .join(' ').toLowerCase();
+        const textOk = !textFilter || combined.includes(textFilter);
+        return sectionOk && timingOk && dateOk && textOk;
       });
       if (filtered.length === 0) {
         tbody.innerHTML = `<tr id="noScoresRow"><td colspan="6" class="text-center">No scores found.</td></tr>`;
