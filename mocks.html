@@ -299,34 +299,20 @@
   <div class="card-header">Progress</div>
   <div class="card-body">
     <div class="row">
-      <!-- VR chart -->
-      <div class="col-md-4 text-center">
+      <div class="col-md-3 text-center">
+        <h5>Full Mock</h5>
+        <canvas id="chartFull" height="150"></canvas>
+      </div>
+      <div class="col-md-3 text-center">
         <h5>VR</h5>
-        <select id="filterVRTiming" class="form-select form-select-sm mb-2">
-          <option value="All">All</option>
-          <option value="Timed">Timed</option>
-          <option value="Untimed">Untimed</option>
-        </select>
         <canvas id="chartVR" height="150"></canvas>
       </div>
-      <!-- DM chart -->
-      <div class="col-md-4 text-center">
+      <div class="col-md-3 text-center">
         <h5>DM</h5>
-        <select id="filterDMTiming" class="form-select form-select-sm mb-2">
-          <option value="All">All</option>
-          <option value="Timed">Timed</option>
-          <option value="Untimed">Untimed</option>
-        </select>
         <canvas id="chartDM" height="150"></canvas>
       </div>
-      <!-- QR chart -->
-      <div class="col-md-4 text-center">
+      <div class="col-md-3 text-center">
         <h5>QR</h5>
-        <select id="filterQRTiming" class="form-select form-select-sm mb-2">
-          <option value="All">All</option>
-          <option value="Timed">Timed</option>
-          <option value="Untimed">Untimed</option>
-        </select>
         <canvas id="chartQR" height="150"></canvas>
       </div>
     </div>
@@ -342,7 +328,7 @@
     import { getFirestore, collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
 
 
-    let chartVR, chartDM, chartQR;
+    let chartFull, chartVR, chartDM, chartQR;
     let allEntries = [];
     let scoreChart;
 
@@ -484,9 +470,6 @@
     // Attach filter event listeners once
     document.getElementById('filterSection').addEventListener('change', renderTable);
     document.getElementById('filterPlatform').addEventListener('change', renderTable);
-    document.getElementById('filterVRTiming').addEventListener('change', renderTable);
-    document.getElementById('filterDMTiming').addEventListener('change', renderTable);
-    document.getElementById('filterQRTiming').addEventListener('change', renderTable);
     document.getElementById('filterRange').addEventListener('change', renderTable);
     document.getElementById('filterText').addEventListener('input', renderTable);
 
@@ -522,9 +505,10 @@
         filtered.forEach(({ data, id }) => appendHistoryEntry(data, id));
       }
       // updateChart(filtered);  // Removed single-chart code
-      chartVR = updateSectionChart('VR', document.getElementById('filterVRTiming').value, chartVR, 'chartVR');
-      chartDM = updateSectionChart('DM', document.getElementById('filterDMTiming').value, chartDM, 'chartDM');
-      chartQR = updateSectionChart('QR', document.getElementById('filterQRTiming').value, chartQR, 'chartQR');
+      chartFull = updateSectionChart('Full Mock', 'All', chartFull, 'chartFull');
+      chartVR   = updateSectionChart('VR Subtest', 'All', chartVR, 'chartVR');
+      chartDM   = updateSectionChart('DM Subtest', 'All', chartDM, 'chartDM');
+      chartQR   = updateSectionChart('QR Subtest', 'All', chartQR, 'chartQR');
     }
 
     // updateChart function removed (single-chart code)
