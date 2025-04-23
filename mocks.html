@@ -144,8 +144,9 @@
     <div class="text-muted small">Emmanuel made</div>
     <div id="user-info">
       <div class="input-group input-group-sm">
-        <span class="input-group-text">😹</span>
+        <span id="userEmoji" class="input-group-text">😹</span>
         <input type="text" id="usernameInput" class="form-control" placeholder="Username">
+        <button id="saveUsername" class="btn btn-sm btn-primary ms-2" style="display:none;">Save</button>
       </div>
     </div>
   </div>
@@ -327,6 +328,12 @@
     import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
     import { getFirestore, collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
 
+    // Emoji assignment for new users
+    const emojis = ['😺','😸','😹','😻','😼','😽','🙀','😿','😾'];
+    function pickRandomEmoji() {
+      return emojis[Math.floor(Math.random() * emojis.length)];
+    }
+
 
     let chartFull, chartVR, chartDM, chartQR;
     let allEntries = [];
@@ -416,29 +423,54 @@
     // Auth state handling
     loginBtn.addEventListener('click', () => signInWithPopup(auth, new GoogleAuthProvider()));
     onAuthStateChanged(auth, user => {
-      const userInfo = document.getElementById('user-info');
+      const usernameInput = document.getElementById('usernameInput');
+      const userEmoji     = document.getElementById('userEmoji');
+      const saveBtn       = document.getElementById('saveUsername');
+
       if (user) {
         authUI.style.display    = 'none';
-        trackerUI.style.display = 'block';
-        const usernameInput = document.getElementById('usernameInput');
-        // Load saved username or default to email
-        const saved = localStorage.getItem('username_' + user.uid);
-        usernameInput.value = saved || user.email;
+        // Check for saved username
+        const savedName  = localStorage.getItem('username_' + user.uid);
+        const savedEmoji = localStorage.getItem('emoji_'    + user.uid);
+        if (savedName) {
+          // Returning user
+          usernameInput.value        = savedName;
+          userEmoji.textContent      = savedEmoji || '😹';
+          saveBtn.style.display      = 'none';
+          trackerUI.style.display    = 'block';
+          loadScores();
+        } else {
+          // New user: prompt to save username
+          usernameInput.value        = '';
+          userEmoji.textContent      = pickRandomEmoji();
+          saveBtn.style.display      = 'inline-block';
+          trackerUI.style.display    = 'none';
+        }
         usernameInput.style.display = 'inline-block';
-        loadScores();
       } else {
-        authUI.style.display    = 'flex';
-        trackerUI.style.display = 'none';
-        // Hide username input on logout
-        document.getElementById('usernameInput').style.display = 'none';
-        userInfo.textContent    = '';
+        // Not logged in
+        authUI.style.display       = 'flex';
+        trackerUI.style.display    = 'none';
+        usernameInput.style.display= 'none';
+        userInfo.textContent       = '';
       }
     });
 
-    // Save username on change
-    document.getElementById('usernameInput').addEventListener('change', () => {
+    // Save Username click handler
+    document.getElementById('saveUsername').addEventListener('click', () => {
       const user = auth.currentUser;
-      if (user) localStorage.setItem('username_' + user.uid, document.getElementById('usernameInput').value.trim());
+      const name = document.getElementById('usernameInput').value.trim();
+      if (!user) return;
+      if (!name) {
+        alert('Please enter a username.');
+        return;
+      }
+      const emoji = document.getElementById('userEmoji').textContent;
+      localStorage.setItem('username_' + user.uid, name);
+      localStorage.setItem('emoji_'    + user.uid, emoji);
+      document.getElementById('saveUsername').style.display = 'none';
+      trackerUI.style.display = 'block';
+      loadScores();
     });
  
     // Load scores for current user via onSnapshot, then sort client-side
