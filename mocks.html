@@ -162,6 +162,10 @@
       <h1 class="mb-0">Mock Tracker</h1>
       <a href="index.html" class="ms-3" style="font-size:1.25em; text-decoration:none;">→ UCAT Tracker</a>
     </div>
+    <!-- Recent updates ticker -->
+    <div id="recentUpdates" class="alert alert-light text-center mb-4" style="font-size:0.9em;">
+      Loading recent updates...
+    </div>
     <div class="mx-auto" style="max-width:2000px; border:1px solid #ccc; padding:1rem;">
     <!-- Card for entering a new score -->
     <div class="card mb-4">
@@ -584,10 +588,23 @@
   chartVar.update();
   return chartVar;
 }
+    // Show last five global mock completions
+    import { query as _query, orderBy, limit, onSnapshot as _onSnapshot } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+    const recentRef = _query(collection(db, 'mocks'), orderBy('createdAt', 'desc'), limit(5));
+    const recentEl = document.getElementById('recentUpdates');
+    _onSnapshot(recentRef, snap => {
+      const lines = snap.docs.map(docSnap => {
+        const d = docSnap.data();
+        return `${d.userName} completed a ${d.time} min ${d.section}`;
+      });
+      recentEl.textContent = lines.join(' • ');
+    });
+
     async function addScore(entry) {
       entry.userId = auth.currentUser.uid;
       entry.createdAt = serverTimestamp();
       entry.review = document.getElementById('review').value;
+      entry.userName = localStorage.getItem('username_' + auth.currentUser.uid) || 'Unknown';
       try {
         const docRef = await addDoc(collection(db, 'mocks'), entry);
         console.log('[Firestore] addDoc succeeded, ID:', docRef.id, entry);

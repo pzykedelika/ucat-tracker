@@ -159,6 +159,9 @@
       </div>
     </div>
   </div>
+  <div id="recentUpdates" class="container-fluid bg-light py-1" style="font-size:0.9em;">
+    Loading recent updates...
+  </div>
 <!-- Authentication UI -->
 <div id="auth-ui" class="container mt-4" style="display:none;">
   <div class="d-flex justify-content-center w-100">
@@ -347,6 +350,20 @@
     import { getAnalytics } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js';
     import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
     import { getFirestore, collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+    import { orderBy, limit } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+    // Listen for the 5 most recent scores globally
+    const recentRef = query(collection(db, 'scores'), orderBy('createdAt', 'desc'), limit(5));
+    const recentEl = document.getElementById('recentUpdates');
+onSnapshot(recentRef, snapshot => {
+  const lines = snapshot.docs.map(docSnap => {
+    const d = docSnap.data();
+    // e.g. "Emmanuel completed a Timed VR in 10 min"
+    const section = d.section;
+    const time    = d.time + ' min ';
+    return `${d.userName || 'Unknown'} completed a ${time}${section}`;
+  });
+  recentEl.textContent = lines.join('   |   ');
+});
 
     // Emoji assignment for new users
     const emojis = ['😺','😸','😹','😻','😼','😽','🙀','😿','😾'];
@@ -613,6 +630,8 @@
       entry.userId = auth.currentUser.uid;
       entry.createdAt = serverTimestamp();
       entry.review = document.getElementById('review').value;
+      entry.userName  = localStorage.getItem('username_' + auth.currentUser.uid) || 'Unknown';
+      entry.userEmoji = localStorage.getItem('emoji_'    + auth.currentUser.uid) || '';
       try {
         const docRef = await addDoc(collection(db, 'scores'), entry);
         console.log('[Firestore] addDoc succeeded, ID:', docRef.id, entry);
