@@ -450,6 +450,20 @@
           saveBtn.style.display      = 'none';
           trackerUI.style.display    = 'block';
           loadScores();
+          // Real-time Recent Updates for mocks (move here)
+          const recentEl = document.getElementById('recentUpdates');
+          const recentQuery = query(
+            collection(db, 'mocks'),
+            orderBy('createdAt', 'desc'),
+            limit(5)
+          );
+          onSnapshot(recentQuery, snap => {
+            const lines = snap.docs.map(docSnap => {
+              const d = docSnap.data();
+              return `${d.userName} completed a ${d.time} min ${d.section}`;
+            });
+            recentEl.innerHTML = lines.join('<span class="separator">•</span>');
+          });
         } else {
           // New user: prompt to save username
           usernameInput.value        = '';
@@ -595,16 +609,7 @@
   chartVar.update();
   return chartVar;
 }
-    // Show last five global mock completions
-    const recentRef = query(collection(db, 'mocks'), orderBy('createdAt', 'desc'), limit(5));
-    const recentEl = document.getElementById('recentUpdates');
-    onSnapshot(recentRef, snap => {
-      const lines = snap.docs.map(docSnap => {
-        const d = docSnap.data();
-        return `${d.userName} completed a ${d.time} min ${d.section}`;
-      });
-      recentEl.innerHTML = lines.join('<span class="separator">•</span>');
-    });
+
 
     async function addScore(entry) {
       entry.userId = auth.currentUser.uid;

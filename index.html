@@ -443,25 +443,28 @@
     const analytics = getAnalytics(app);
     const auth = getAuth(app);
     const db   = getFirestore(app);
-    // Recent Updates fetch logic (one-time fetch)
+    // Recent Updates: real-time subscription with onSnapshot
     const recentEl = document.getElementById('recentUpdates');
-    async function subscribeRecent() {
-      try {
-        const recentRef = query(
-          collection(db, 'scores'),
-          orderBy('createdAt', 'desc'),
-          limit(5)
-        );
-        const snap = await getDocs(recentRef);
-        const lines = snap.docs.map(docSnap => {
-          const d = docSnap.data();
-          return `${d.userName || 'Unknown'} completed a ${d.time} min ${d.section}`;
-        });
-        recentEl.innerHTML = lines.join('<span class="separator">•</span>');
-      } catch (err) {
-        console.error('Recent updates fetch failed:', err);
-        recentEl.textContent = 'Could not load updates';
-      }
+    function subscribeRecent() {
+      const recentRef = query(
+        collection(db, 'scores'),
+        orderBy('createdAt', 'desc'),
+        limit(5)
+      );
+      onSnapshot(
+        recentRef,
+        snap => {
+          const lines = snap.docs.map(docSnap => {
+            const d = docSnap.data();
+            return `${d.userName || 'Unknown'} completed a ${d.time} min ${d.section}`;
+          });
+          recentEl.innerHTML = lines.join('<span class="separator">•</span>');
+        },
+        err => {
+          console.error('Recent updates subscription failed:', err);
+          recentEl.textContent = 'Could not load updates';
+        }
+      );
     }
 
     // UI containers
