@@ -90,11 +90,6 @@
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- SimpleMDE Markdown Editor -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
-  <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
-  <!-- Markdown renderer -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
     // Function to toggle the display of the time input based on the hidden timing value
     function toggleTimeField() {
@@ -344,7 +339,6 @@
     import { getAnalytics } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js';
     import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
     import { getFirestore, collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, orderBy, limit } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
-    import SimpleMDE from 'https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js';
 
     // Emoji assignment for new users
     const emojis = ['😺','😸','😹','😻','😼','😽','🙀','😿','😾'];
@@ -372,7 +366,7 @@
       if (percent < 50) barClass = 'bg-danger';
       else if (percent < 80) barClass = 'bg-warning';
       else barClass = 'bg-success';
-      // Render the review as a div with data-review attribute (for markdown)
+      // Render the review as a div with data-review attribute
       tr.innerHTML = `
         <td>
           ${entry.date}<br>
@@ -412,8 +406,7 @@
       const ta = tr.querySelector('.review-cell');
       if (ta) {
         ta.addEventListener('click', () => {
-          const md = ta.getAttribute('data-review') || '';
-          noteContent.innerHTML = marked.parse(md);
+          noteContent.textContent = ta.getAttribute('data-review') || '';
           overlay.style.display = 'flex';
         });
       }
@@ -680,45 +673,15 @@
 
     // Remove auto-resize for form review textarea
 
-    // --- Overlay markdown editor for form Review ---
-    document.addEventListener('DOMContentLoaded', () => {
-      let overlayMDE;
-      document.querySelectorAll('.review-clickable').forEach(el => {
-        el.addEventListener('click', () => {
-          const overlay = document.getElementById('noteOverlay');
-          const editorEl = document.getElementById('overlayReviewEditor');
-          editorEl.value = el.value;
-          overlay.style.display = 'flex';
-          // Initialize SimpleMDE if not created
-          if (!overlayMDE) {
-            overlayMDE = new SimpleMDE({
-              element: editorEl,
-              autofocus: true,
-              spellChecker: false,
-              toolbar: ["bold","italic","heading","|","quote","unordered-list","ordered-list","|","preview","guide"]
-            });
-          } else {
-            overlayMDE.value(el.value);
-          }
-        });
-      });
-      // Save and close
-      document.getElementById('noteSave').addEventListener('click', () => {
-        const editorVal = overlayMDE.value();
-        document.getElementById('review').value = editorVal;
-        document.getElementById('noteOverlay').style.display = 'none';
-      });
-    });
   </script>
 </div>
 </div>
 </div>
 <!-- Sticky-note overlay for Reviews -->
 <div id="noteOverlay">
-  <div class="sticky-note">
+  <div class="sticky-note" style="min-width:300px; min-height:120px;">
     <button id="noteClose" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Close"></button>
-    <button id="noteSave" class="btn btn-sm btn-primary position-absolute top-0 start-0 m-2">Save</button>
-    <textarea id="overlayReviewEditor" style="width:100%;height:70vh;"></textarea>
+    <div id="noteContent" style="white-space: pre-wrap; margin-top:2.5rem; min-height:70px;"></div>
   </div>
 </div>
 <script>
