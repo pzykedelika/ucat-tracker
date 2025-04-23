@@ -80,6 +80,40 @@
       max-width: none !important;
       max-height: none !important;
     }
+
+    /* Gradient primary styling */
+    :root {
+      --primary-gradient: linear-gradient(45deg, #4e54c8, #8f94fb);
+    }
+    /* Solid buttons: use gradient background */
+    .btn-primary {
+      background-image: var(--primary-gradient) !important;
+      border: none !important;
+      color: #fff !important;
+    }
+    .btn-primary:hover,
+    .btn-primary:focus {
+      filter: brightness(1.1);
+    }
+    /* Outline buttons: gradient border and fill on hover */
+    .btn-outline-primary {
+      color: #fff !important;
+      background-color: transparent !important;
+      border: 2px solid transparent !important;
+      background-clip: padding-box, border-box !important;
+      border-image: var(--primary-gradient) 1 !important;
+    }
+    .btn-outline-primary:hover,
+    .btn-outline-primary:focus {
+      background-image: var(--primary-gradient) !important;
+      color: #fff !important;
+    }
+    /* Gradient text for links */
+    a {
+      background: var(--primary-gradient) !important;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
