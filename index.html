@@ -435,19 +435,33 @@
     const analytics = getAnalytics(app);
     const auth = getAuth(app);
     const db   = getFirestore(app);
-    // Listen for the 5 most recent scores globally
-    const recentRef = query(collection(db, 'scores'), orderBy('createdAt', 'desc'), limit(5));
+    // Recent Updates subscription logic
     const recentEl = document.getElementById('recentUpdates');
-    onSnapshot(recentRef, snapshot => {
-      const lines = snapshot.docs.map(docSnap => {
-        const d = docSnap.data();
-        // e.g. "Emmanuel completed a Timed VR in 10 min"
-        const section = d.section;
-        const time    = d.time + ' min ';
-        return `${d.userName || 'Unknown'} completed a ${time}${section}`;
-      });
-      recentEl.textContent = lines.join('   |   ');
-    });
+    let recentUnsub = null;
+    function subscribeRecent() {
+      // Unsubscribe previous listener
+      if (recentUnsub) recentUnsub();
+      // New listener
+      const recentRef = query(
+        collection(db, 'scores'),
+        orderBy('createdAt', 'desc'),
+        limit(5)
+      );
+      recentUnsub = onSnapshot(
+        recentRef,
+        snap => {
+          const lines = snap.docs.map(docSnap => {
+            const d = docSnap.data();
+            return `${d.userName || 'Unknown'} completed a ${d.time} min ${d.section}`;
+          });
+          recentEl.textContent = lines.join('   •   ');
+        },
+        err => {
+          console.error('Recent updates failed:', err);
+          recentEl.textContent = 'Could not load updates';
+        }
+      );
+    }
 
     // UI containers
     document.getElementById('btn-login');
@@ -475,6 +489,7 @@
           saveBtn.style.display      = 'none';
           document.getElementById('usernameAlert').style.display = 'none';
           trackerUI.style.display    = 'block';
+          subscribeRecent();
           loadScores();
         } else {
           // New user must choose username
@@ -487,6 +502,8 @@
         usernameInput.style.display = 'inline-block';
       } else {
         // Not signed in
+        if (recentUnsub) recentUnsub();
+        recentEl.textContent = 'Loading recent updates...';
         authUI.style.display       = 'flex';
         trackerUI.style.display    = 'none';
         usernameInput.style.display= 'none';
