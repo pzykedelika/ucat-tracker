@@ -349,21 +349,7 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
     import { getAnalytics } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js';
     import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
-    import { getFirestore, collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
-    import { orderBy, limit } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
-    // Listen for the 5 most recent scores globally
-    const recentRef = query(collection(db, 'scores'), orderBy('createdAt', 'desc'), limit(5));
-    const recentEl = document.getElementById('recentUpdates');
-onSnapshot(recentRef, snapshot => {
-  const lines = snapshot.docs.map(docSnap => {
-    const d = docSnap.data();
-    // e.g. "Emmanuel completed a Timed VR in 10 min"
-    const section = d.section;
-    const time    = d.time + ' min ';
-    return `${d.userName || 'Unknown'} completed a ${time}${section}`;
-  });
-  recentEl.textContent = lines.join('   |   ');
-});
+    import { getFirestore, collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, orderBy, limit } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
 
     // Emoji assignment for new users
     const emojis = ['😺','😸','😹','😻','😼','😽','🙀','😿','😾'];
@@ -449,6 +435,19 @@ onSnapshot(recentRef, snapshot => {
     const analytics = getAnalytics(app);
     const auth = getAuth(app);
     const db   = getFirestore(app);
+    // Listen for the 5 most recent scores globally
+    const recentRef = query(collection(db, 'scores'), orderBy('createdAt', 'desc'), limit(5));
+    const recentEl = document.getElementById('recentUpdates');
+    onSnapshot(recentRef, snapshot => {
+      const lines = snapshot.docs.map(docSnap => {
+        const d = docSnap.data();
+        // e.g. "Emmanuel completed a Timed VR in 10 min"
+        const section = d.section;
+        const time    = d.time + ' min ';
+        return `${d.userName || 'Unknown'} completed a ${time}${section}`;
+      });
+      recentEl.textContent = lines.join('   |   ');
+    });
 
     // UI containers
     document.getElementById('btn-login');

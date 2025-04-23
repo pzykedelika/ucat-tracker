@@ -330,7 +330,7 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
     import { getAnalytics } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js';
     import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
-    import { getFirestore, collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+    import { getFirestore, collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, orderBy, limit } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
 
     // Emoji assignment for new users
     const emojis = ['😺','😸','😹','😻','😼','😽','🙀','😿','😾'];
@@ -589,10 +589,9 @@
   return chartVar;
 }
     // Show last five global mock completions
-    import { query as _query, orderBy, limit, onSnapshot as _onSnapshot } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
-    const recentRef = _query(collection(db, 'mocks'), orderBy('createdAt', 'desc'), limit(5));
+    const recentRef = query(collection(db, 'mocks'), orderBy('createdAt', 'desc'), limit(5));
     const recentEl = document.getElementById('recentUpdates');
-    _onSnapshot(recentRef, snap => {
+    onSnapshot(recentRef, snap => {
       const lines = snap.docs.map(docSnap => {
         const d = docSnap.data();
         return `${d.userName} completed a ${d.time} min ${d.section}`;
