@@ -7,34 +7,6 @@
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    /* Theme variables */
-    :root {
-      --bg: #ffffff;
-      --text: #000000;
-      --card-bg: #ffffff;
-      --header-bg: #f8f9fa;
-      --table-row-alt: #f2f2f2;
-    }
-    .dark-mode {
-      --bg: #121212;
-      --text: #e0e0e0;
-      --card-bg: #1e1e1e;
-      --header-bg: #1c1c1c;
-      --table-row-alt: #1a1a1a;
-    }
-    body {
-      background-color: var(--bg) !important;
-      color: var(--text) !important;
-    }
-    .card, .navbar, .d-flex.justify-content-between {
-      background-color: var(--card-bg) !important;
-    }
-    table.table-sm tr:nth-child(odd) {
-      background-color: var(--table-row-alt) !important;
-    }
-    table.table-sm tr:nth-child(even) {
-      background-color: var(--bg) !important;
-    }
 
     /* Use Apple’s SF Pro system font stack */
     html, body, input, button, select, textarea {
@@ -183,11 +155,10 @@
           <input type="text" id="usernameInput" class="form-control" placeholder="Username">
         </div>
       </div>
-      <button id="themeToggle" class="btn btn-sm btn-outline-secondary ms-2" title="Toggle dark mode">🌙</button>
     </div>
   </div>
 <!-- Authentication UI -->
-<div id="auth-ui" class="container mt-4">
+<div id="auth-ui" class="container mt-4" style="display:none;">
   <div class="d-flex justify-content-center w-100">
     <button id="btn-login" class="btn btn-primary">Log in / Sign up</button>
   </div>
@@ -636,19 +607,6 @@
     });
 
     // Remove auto-resize for form review textarea
-
-    // Dark mode toggle
-    const themeToggle = document.getElementById('themeToggle');
-    // Apply stored preference
-    if (localStorage.getItem('darkMode') === 'true') document.documentElement.classList.add('dark-mode');
-    themeToggle.addEventListener('click', () => {
-      document.documentElement.classList.toggle('dark-mode');
-      const isDark = document.documentElement.classList.contains('dark-mode');
-      localStorage.setItem('darkMode', isDark);
-      themeToggle.textContent = isDark ? '☀️' : '🌙';
-    });
-    // Initialize button icon
-    themeToggle.textContent = document.documentElement.classList.contains('dark-mode') ? '☀️' : '🌙';
   </script>
 </div>
 </div>

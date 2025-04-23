@@ -80,35 +80,6 @@
       max-width: none !important;
       max-height: none !important;
     }
-
-    /* Theme variables */
-    :root {
-      --bg: #ffffff;
-      --text: #000000;
-      --card-bg: #ffffff;
-      --header-bg: #f8f9fa;
-      --table-row-alt: #f2f2f2;
-    }
-    .dark-mode {
-      --bg: #121212;
-      --text: #e0e0e0;
-      --card-bg: #1e1e1e;
-      --header-bg: #1c1c1c;
-      --table-row-alt: #1a1a1a;
-    }
-    body {
-      background-color: var(--bg) !important;
-      color: var(--text) !important;
-    }
-    .card, .d-flex.align-items-baseline, .d-flex.justify-content-between {
-      background-color: var(--card-bg) !important;
-    }
-    table.table-sm tr:nth-child(odd) {
-      background-color: var(--table-row-alt) !important;
-    }
-    table.table-sm tr:nth-child(even) {
-      background-color: var(--bg) !important;
-    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
@@ -171,18 +142,15 @@
 <body>
   <div class="d-flex justify-content-between align-items-center px-4 mt-2">
     <div class="text-muted small">Emmanuel made</div>
-    <div class="d-flex align-items-center">
-      <div id="user-info">
-        <div class="input-group input-group-sm">
-          <span class="input-group-text">😹</span>
-          <input type="text" id="usernameInput" class="form-control" placeholder="Username">
-        </div>
+    <div id="user-info">
+      <div class="input-group input-group-sm">
+        <span class="input-group-text">😹</span>
+        <input type="text" id="usernameInput" class="form-control" placeholder="Username">
       </div>
-      <button id="themeToggle" class="btn btn-sm btn-outline-secondary ms-2" title="Toggle dark mode">🌙</button>
     </div>
   </div>
 <!-- Authentication UI -->
-<div id="auth-ui" class="container mt-4">
+<div id="auth-ui" class="container mt-4" style="display:none;">
   <div class="d-flex justify-content-center w-100">
     <button id="btn-login" class="btn btn-primary">Log in / Sign up</button>
   </div>
@@ -646,26 +614,11 @@
     <div id="noteContent" style="white-space: pre-wrap;"></div>
   </div>
 </div>
-</script>
 <script>
-  // Only handle overlay close logic globally (not review open, which is now per-row)
-  document.getElementById('noteClose').addEventListener('click', function() {
-    document.getElementById('noteOverlay').style.display = 'none';
-  });
-</script>
-<script>
-  // Dark mode toggle for mocks page
-  const themeToggleBtn = document.getElementById('themeToggle');
-  // Initialize from localStorage
-  if (localStorage.getItem('darkMode') === 'true') {
-    document.documentElement.classList.add('dark-mode');
-    themeToggleBtn.textContent = '☀️';
-  }
-  themeToggleBtn.addEventListener('click', () => {
-    const isDark = document.documentElement.classList.toggle('dark-mode');
-    localStorage.setItem('darkMode', isDark);
-    themeToggleBtn.textContent = isDark ? '☀️' : '🌙';
-  });
+// Only handle overlay close logic globally (not review open, which is now per-row)
+document.getElementById('noteClose').addEventListener('click', function() {
+  document.getElementById('noteOverlay').style.display = 'none';
+});
 </script>
 </body>
 </html>
