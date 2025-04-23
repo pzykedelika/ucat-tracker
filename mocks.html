@@ -7,6 +7,14 @@
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
+    /* Center Recent Updates text and color the separator dot */
+    #recentUpdates {
+      text-align: center !important;
+    }
+    #recentUpdates .separator {
+      color: #0D6EFD;
+      margin: 0 0.5em;
+    }
     /* Use Apple’s SF Pro system font stack */
     html, body, input, button, select, textarea {
       font-family: -apple-system, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
@@ -595,7 +603,7 @@
         const d = docSnap.data();
         return `${d.userName} completed a ${d.time} min ${d.section}`;
       });
-      recentEl.textContent = lines.join(' • ');
+      recentEl.innerHTML = lines.join('<span class="separator">•</span>');
     });
 
     async function addScore(entry) {

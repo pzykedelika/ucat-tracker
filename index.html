@@ -7,7 +7,15 @@
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-
+    /* Center the Recent Updates text */
+#recentUpdates {
+  text-align: center !important;
+}
+/* Style the separator dot */
+#recentUpdates .separator {
+  color: #0D6EFD;
+  margin: 0 0.5em;
+}
     /* Use Apple’s SF Pro system font stack */
     html, body, input, button, select, textarea {
       font-family: -apple-system, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
@@ -449,7 +457,7 @@
           const d = docSnap.data();
           return `${d.userName || 'Unknown'} completed a ${d.time} min ${d.section}`;
         });
-        recentEl.textContent = lines.join('   •   ');
+        recentEl.innerHTML = lines.join('<span class="separator">•</span>');
       } catch (err) {
         console.error('Recent updates fetch failed:', err);
         recentEl.textContent = 'Could not load updates';
