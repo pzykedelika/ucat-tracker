@@ -119,31 +119,9 @@
         toggleTimeField();
     }
 
-    // Function to update the score percentage next to the score input
-    function updateScorePercentage() {
-        var scoreInput = document.getElementById('score').value;
-        var percentageSpan = document.getElementById('scorePercentage');
-        // Expect input format like "20/30"
-        if(scoreInput.includes("/")) {
-            var parts = scoreInput.split("/");
-            var obtained = parseFloat(parts[0]);
-            var total = parseFloat(parts[1]);
-            if(!isNaN(obtained) && !isNaN(total) && total > 0) {
-                var percentage = (obtained / total) * 100;
-                percentageSpan.textContent = "(" + percentage.toFixed(1) + "% )";
-            } else {
-                percentageSpan.textContent = "";
-            }
-        } else {
-            percentageSpan.textContent = "";
-        }
-    }
-
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize the time field display
         toggleTimeField();
-        // Attach event listener for score input
-        document.getElementById('score').addEventListener('input', updateScorePercentage);
     });
   </script>
 </head>
@@ -212,12 +190,36 @@
                 <option value="Pearson Vue">Pearson Vue</option>
               </select>
             </div>
-            <!-- Score -->
+            <!-- VR Score -->
             <div class="col-auto">
-              <label for="score" class="col-form-label">Score (x/y)</label>
+              <label for="scoreVR" class="col-form-label">VR Score</label>
               <div class="d-flex align-items-center">
-                <input type="text" class="form-control" id="score" name="score" required style="width:150px;">
-                <span id="scorePercentage" class="ms-2"></span>
+                <input type="number" class="form-control" id="scoreVR" name="scoreVR" required style="width:100px;" min="0" max="900">
+                <span id="percVR" class="ms-2"></span>
+              </div>
+            </div>
+            <!-- DM Score -->
+            <div class="col-auto">
+              <label for="scoreDM" class="col-form-label">DM Score</label>
+              <div class="d-flex align-items-center">
+                <input type="number" class="form-control" id="scoreDM" name="scoreDM" required style="width:100px;" min="0" max="900">
+                <span id="percDM" class="ms-2"></span>
+              </div>
+            </div>
+            <!-- QR Score -->
+            <div class="col-auto">
+              <label for="scoreQR" class="col-form-label">QR Score</label>
+              <div class="d-flex align-items-center">
+                <input type="number" class="form-control" id="scoreQR" name="scoreQR" required style="width:100px;" min="0" max="900">
+                <span id="percQR" class="ms-2"></span>
+              </div>
+            </div>
+            <!-- Total Score -->
+            <div class="col-auto">
+              <label for="scoreTotal" class="col-form-label">Total Score</label>
+              <div class="d-flex align-items-center">
+                <input type="number" class="form-control" id="scoreTotal" name="scoreTotal" required style="width:100px;" min="0" max="2700">
+                <span id="percTotal" class="ms-2"></span>
               </div>
             </div>
             <!-- Review Notes -->
@@ -645,6 +647,28 @@
     }
     window.deleteScore = deleteScore;
  
+    // Update percentage display for a given input/max
+    function updatePercentage(inputId, spanId, max) {
+      const val = parseFloat(document.getElementById(inputId).value);
+      const span = document.getElementById(spanId);
+      if (!isNaN(val) && max > 0) {
+        span.textContent = `(${(val / max * 100).toFixed(1)}%)`;
+      } else {
+        span.textContent = '';
+      }
+    }
+
+    // Attach listeners
+    ['VR','DM','QR'].forEach(type => {
+      document.getElementById('score'+type).addEventListener('input', () =>
+        updatePercentage('score'+type, 'perc'+type, 900)
+      );
+    });
+    // Total uses 2700
+    document.getElementById('scoreTotal').addEventListener('input', () =>
+      updatePercentage('scoreTotal','percTotal',2700)
+    );
+
     // Form submission
     document.getElementById('scoreForm').addEventListener('submit', async e => {
       e.preventDefault();
@@ -663,11 +687,15 @@
         section: sectionVal,
         platform: document.getElementById('platform').value,
         time: timeVal,
-        score: document.getElementById('score').value
+        vrScore: parseInt(document.getElementById('scoreVR').value, 10),
+        dmScore: parseInt(document.getElementById('scoreDM').value, 10),
+        qrScore: parseInt(document.getElementById('scoreQR').value, 10),
+        totalScore: parseInt(document.getElementById('scoreTotal').value, 10),
+        review: document.querySelector('[name="review"]').value
       };
       await addScore(entry);
       loadScores();
-      e.target.reset(); updateScorePercentage();
+      e.target.reset();
       if (simplemde) simplemde.value('');
     });
 
