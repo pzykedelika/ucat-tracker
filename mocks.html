@@ -174,26 +174,19 @@
               <label for="date" class="col-form-label">Date</label>
               <input type="date" class="form-control" id="date" name="date" required>
             </div>
-            <!-- Section -->
+            <!-- Mock # -->
             <div class="col-auto">
-              <label for="section" class="col-form-label">Section</label>
-              <select class="form-select" id="section" name="section" required>
-                <option value="" selected disabled>Select Section</option>
-                <option value="VR">VR</option>
-                <option value="DM">DM</option>
-                <option value="QR">QR</option>
+              <label for="mockName" class="col-form-label">Mock #</label>
+              <input type="text" class="form-control" id="mockName" name="mockName" placeholder="Mock name" required>
+            </div>
+            <!-- Platform -->
+            <div class="col-auto">
+              <label for="platform" class="col-form-label">Platform</label>
+              <select id="platform" name="platform" class="form-select" required>
+                <option value="" selected disabled>Select Platform</option>
+                <option value="Medentry">Medentry</option>
+                <option value="Medify">Medify</option>
               </select>
-            </div>
-            <!-- Timing Buttons -->
-            <div class="col-auto d-flex align-items-center">
-                <input type="hidden" name="timing" id="timing" value="Timed">
-                <button type="button" id="btnTimed" class="btn btn-primary me-2" onclick="setTiming('Timed')">Timed</button>
-                <button type="button" id="btnUntimed" class="btn btn-outline-primary" onclick="setTiming('Untimed')">Untimed</button>
-            </div>
-            <!-- Time (appears only if "Timed" is selected) -->
-            <div class="col-auto" id="timeInputField">
-                <label for="time" class="col-form-label">Time (minutes)</label>
-                <input type="number" class="form-control" id="time" name="time" min="0">
             </div>
             <!-- Score -->
             <div class="col-auto">
@@ -219,7 +212,7 @@
     
     <!-- Card for displaying score history -->
     <div class="card">
-      <div class="card-header">Score History</div>
+      <div class="card-header">Mock History</div>
       <div class="card-body">
         <div class="d-flex mb-3">
           <div class="me-3">
@@ -259,8 +252,8 @@
           <table class="table table-sm">
             <colgroup>
               <col style="width:7%;" />  <!-- Date -->
-              <col style="width:7%;" />  <!-- Section -->
-              <col style="width:7%;" />  <!-- Timing -->
+              <col style="width:7%;" />  <!-- Mock # -->
+              <col style="width:7%;" />  <!-- Platform -->
               <col style="width:5%;" />  <!-- Time -->
               <col style="width:15%;" />  <!-- Score (progress bar) -->
               <col style="width:20%;" />  <!-- Review -->
@@ -269,8 +262,8 @@
             <thead>
               <tr>
                 <th>Date</th>
-                <th>Section</th>
-                <th>Timing</th>
+                <th>Mock #</th>
+                <th>Platform</th>
                 <th>Time</th>
                 <th>Score</th>
                 <th>Review</th>
@@ -361,8 +354,8 @@
             ${timeStr}
           </small>
         </td>
-        <td>${entry.section}</td>
-        <td>${entry.timing}</td>
+        <td>${entry.mockName}</td>
+        <td>${entry.platform}</td>
         <td>${entry.time}</td>
         <td>
           <div class="d-flex align-items-center">
@@ -594,14 +587,14 @@
       e.preventDefault();
       const entry = {
         date: document.getElementById('date').value,
-        section: document.getElementById('section').value,
-        timing: document.getElementById('timing').value,
-        time: document.getElementById('timing').value === 'Timed' ? Number(document.getElementById('time').value) : 0,
+        mockName: document.getElementById('mockName').value,
+        platform: document.getElementById('platform').value,
+        time: 0,
         score: document.getElementById('score').value
       };
       await addScore(entry);
       loadScores();
-      e.target.reset(); setTiming('Timed'); updateScorePercentage();
+      e.target.reset(); updateScorePercentage();
     });
 
     // Remove auto-resize for form review textarea
