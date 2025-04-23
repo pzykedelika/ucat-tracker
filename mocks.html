@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>UCAT Tracker</title>
+  <title>UCAT Mock Tracker</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
@@ -455,7 +455,7 @@
       // Clear existing rows
       tbody.innerHTML = '';
       // Build a query for this user's docs (no orderBy)
-      const scoresRef = collection(db, 'scores');
+      const scoresRef = collection(db, 'mocks');
       const q = query(scoresRef, where('userId', '==', user.uid));
       // Subscribe to real-time updates
       onSnapshot(q, snapshot => {
