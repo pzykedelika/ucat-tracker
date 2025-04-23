@@ -90,6 +90,11 @@
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- SimpleMDE Markdown Editor -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+  <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+  <!-- Markdown renderer -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
     // Function to toggle the display of the time input based on the hidden timing value
     function toggleTimeField() {
@@ -209,6 +214,7 @@
                 <option value="" selected disabled>Select Platform</option>
                 <option value="Medentry">Medentry</option>
                 <option value="Medify">Medify</option>
+                <option value="Pearson Vue">Pearson Vue</option>
               </select>
             </div>
             <!-- Score -->
@@ -365,6 +371,7 @@
       if (percent < 50) barClass = 'bg-danger';
       else if (percent < 80) barClass = 'bg-warning';
       else barClass = 'bg-success';
+      // Render the review as a div with data-review attribute (for markdown)
       tr.innerHTML = `
         <td>
           ${entry.date}<br>
@@ -389,20 +396,23 @@
           </div>
         </td>
         <td>
-          <textarea class="review-cell" readonly>${entry.review || ''}</textarea>
+          <div class="review-cell" data-review="${entry.review ? entry.review.replace(/"/g, '&quot;') : ''}">
+            ${entry.review ? entry.review.replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''}
+          </div>
         </td>
         <td style="padding-left: 1rem; padding-right: 0.5rem;">
           <button class="btn btn-sm btn-outline-danger" onclick="deleteScore('${id}')">🗑️</button>
         </td>
       `;
       document.getElementById('historyBody').appendChild(tr);
-      // Attach overlay click on this row's review textarea
+      // Attach overlay click on this row's review cell
       const overlay = document.getElementById('noteOverlay');
       const noteContent = document.getElementById('noteContent');
       const ta = tr.querySelector('.review-cell');
       if (ta) {
         ta.addEventListener('click', () => {
-          noteContent.textContent = ta.value;
+          const md = ta.getAttribute('data-review') || '';
+          noteContent.innerHTML = marked.parse(md);
           overlay.style.display = 'flex';
         });
       }
@@ -618,7 +628,7 @@
     async function addScore(entry) {
       entry.userId = auth.currentUser.uid;
       entry.createdAt = serverTimestamp();
-      entry.review = document.getElementById('review').value;
+      entry.review = simplemde.value();
       entry.userName = localStorage.getItem('username_' + auth.currentUser.uid) || 'Unknown';
       try {
         const docRef = await addDoc(collection(db, 'mocks'), entry);
@@ -664,9 +674,24 @@
       await addScore(entry);
       loadScores();
       e.target.reset(); updateScorePercentage();
+      if (simplemde) simplemde.value('');
     });
 
     // Remove auto-resize for form review textarea
+
+    // --- SimpleMDE Markdown Editor integration ---
+    let simplemde;
+    document.addEventListener('DOMContentLoaded', () => {
+      const reviewEl = document.getElementById('review');
+      if (reviewEl) {
+        simplemde = new SimpleMDE({
+          element: reviewEl,
+          spellChecker: false,
+          status: false,
+          toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "preview", "guide"]
+        });
+      }
+    });
   </script>
 </div>
 </div>
