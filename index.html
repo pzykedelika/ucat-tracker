@@ -349,7 +349,7 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
     import { getAnalytics } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js';
     import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
-    import { getFirestore, collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, orderBy, limit } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+    import { getFirestore, collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
 
     // Emoji assignment for new users
     const emojis = ['😺','😸','😹','😻','😼','😽','🙀','😿','😾'];
@@ -435,32 +435,25 @@
     const analytics = getAnalytics(app);
     const auth = getAuth(app);
     const db   = getFirestore(app);
-    // Recent Updates subscription logic
+    // Recent Updates fetch logic (one-time fetch)
     const recentEl = document.getElementById('recentUpdates');
-    let recentUnsub = null;
-    function subscribeRecent() {
-      // Unsubscribe previous listener
-      if (recentUnsub) recentUnsub();
-      // New listener
-      const recentRef = query(
-        collection(db, 'scores'),
-        orderBy('createdAt', 'desc'),
-        limit(5)
-      );
-      recentUnsub = onSnapshot(
-        recentRef,
-        snap => {
-          const lines = snap.docs.map(docSnap => {
-            const d = docSnap.data();
-            return `${d.userName || 'Unknown'} completed a ${d.time} min ${d.section}`;
-          });
-          recentEl.textContent = lines.join('   •   ');
-        },
-        err => {
-          console.error('Recent updates failed:', err);
-          recentEl.textContent = 'Could not load updates';
-        }
-      );
+    async function subscribeRecent() {
+      try {
+        const recentRef = query(
+          collection(db, 'scores'),
+          orderBy('createdAt', 'desc'),
+          limit(5)
+        );
+        const snap = await getDocs(recentRef);
+        const lines = snap.docs.map(docSnap => {
+          const d = docSnap.data();
+          return `${d.userName || 'Unknown'} completed a ${d.time} min ${d.section}`;
+        });
+        recentEl.textContent = lines.join('   •   ');
+      } catch (err) {
+        console.error('Recent updates fetch failed:', err);
+        recentEl.textContent = 'Could not load updates';
+      }
     }
 
     // UI containers
@@ -502,7 +495,6 @@
         usernameInput.style.display = 'inline-block';
       } else {
         // Not signed in
-        if (recentUnsub) recentUnsub();
         recentEl.textContent = 'Loading recent updates...';
         authUI.style.display       = 'flex';
         trackerUI.style.display    = 'none';
