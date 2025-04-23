@@ -344,6 +344,7 @@
     import { getAnalytics } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js';
     import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
     import { getFirestore, collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, orderBy, limit } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+    import SimpleMDE from 'https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js';
 
     // Emoji assignment for new users
     const emojis = ['😺','😸','😹','😻','😼','😽','🙀','😿','😾'];
@@ -680,32 +681,33 @@
     // Remove auto-resize for form review textarea
 
     // --- Overlay markdown editor for form Review ---
-    import SimpleMDE from 'https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js';
-    let overlayMDE;
-    document.querySelectorAll('.review-clickable').forEach(el => {
-      el.addEventListener('click', () => {
-        const overlay = document.getElementById('noteOverlay');
-        const editorEl = document.getElementById('overlayReviewEditor');
-        editorEl.value = el.value;
-        overlay.style.display = 'flex';
-        // Initialize SimpleMDE if not created
-        if (!overlayMDE) {
-          overlayMDE = new SimpleMDE({
-            element: editorEl,
-            autofocus: true,
-            spellChecker: false,
-            toolbar: ["bold","italic","heading","|","quote","unordered-list","ordered-list","|","preview","guide"]
-          });
-        } else {
-          overlayMDE.value(el.value);
-        }
+    document.addEventListener('DOMContentLoaded', () => {
+      let overlayMDE;
+      document.querySelectorAll('.review-clickable').forEach(el => {
+        el.addEventListener('click', () => {
+          const overlay = document.getElementById('noteOverlay');
+          const editorEl = document.getElementById('overlayReviewEditor');
+          editorEl.value = el.value;
+          overlay.style.display = 'flex';
+          // Initialize SimpleMDE if not created
+          if (!overlayMDE) {
+            overlayMDE = new SimpleMDE({
+              element: editorEl,
+              autofocus: true,
+              spellChecker: false,
+              toolbar: ["bold","italic","heading","|","quote","unordered-list","ordered-list","|","preview","guide"]
+            });
+          } else {
+            overlayMDE.value(el.value);
+          }
+        });
       });
-    });
-    // Save and close
-    document.getElementById('noteSave').addEventListener('click', () => {
-      const editorVal = overlayMDE.value();
-      document.getElementById('review').value = editorVal;
-      document.getElementById('noteOverlay').style.display = 'none';
+      // Save and close
+      document.getElementById('noteSave').addEventListener('click', () => {
+        const editorVal = overlayMDE.value();
+        document.getElementById('review').value = editorVal;
+        document.getElementById('noteOverlay').style.display = 'none';
+      });
     });
   </script>
 </div>
