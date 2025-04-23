@@ -241,9 +241,10 @@
             <label for="filterSection" class="form-label">Filter by Section:</label>
             <select id="filterSection" class="form-select">
               <option value="All">All</option>
-              <option value="VR">Verbal Reasoning</option>
-              <option value="DM">Decision Making</option>
-              <option value="QR">Quantitative Reasoning</option>
+              <option value="Full Mock">Full Mock</option>
+              <option value="VR Subtest">VR Subtest</option>
+              <option value="DM Subtest">DM Subtest</option>
+              <option value="QR Subtest">QR Subtest</option>
             </select>
           </div>
           <div class="me-3">
@@ -599,12 +600,21 @@
     // Form submission
     document.getElementById('scoreForm').addEventListener('submit', async e => {
       e.preventDefault();
+      const sectionVal = document.getElementById('section').value;
+      let timeVal;
+      switch (sectionVal) {
+        case 'Full Mock':   timeVal = 120; break;
+        case 'VR Subtest':  timeVal = 22;  break;
+        case 'DM Subtest':  timeVal = 37;  break;
+        case 'QR Subtest':  timeVal = 26;  break;
+        default:            timeVal = 0;
+      }
       const entry = {
         date: document.getElementById('date').value,
         mockName: document.getElementById('mockName').value,
-        section: document.getElementById('section').value,
+        section: sectionVal,
         platform: document.getElementById('platform').value,
-        time: 0,
+        time: timeVal,
         score: document.getElementById('score').value
       };
       await addScore(entry);
