@@ -456,7 +456,11 @@
         snap => {
           const lines = snap.docs.map(docSnap => {
             const d = docSnap.data();
-            return `${d.userName || 'Unknown'} completed a ${d.time} min ${d.section}`;
+            // Show 'Untimed' when time is zero
+            const timeStr = d.time === 0
+              ? 'an Untimed'
+              : `a ${d.time} min`;
+            return `${d.userName || 'Unknown'} completed ${timeStr} ${d.section}`;
           });
           recentEl.innerHTML = lines.join('<span class="separator">•</span>');
         },

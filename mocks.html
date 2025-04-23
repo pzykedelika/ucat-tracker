@@ -460,7 +460,11 @@
           onSnapshot(recentQuery, snap => {
             const lines = snap.docs.map(docSnap => {
               const d = docSnap.data();
-              return `${d.userName} completed a ${d.time} min ${d.section}`;
+              // If time is 0, treat as Untimed
+              const timeStr = d.time === 0
+                ? 'an Untimed'
+                : `a ${d.time} min`;
+              return `${d.userName} completed ${timeStr} ${d.section}`;
             });
             recentEl.innerHTML = lines.join('<span class="separator">•</span>');
           });
