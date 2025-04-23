@@ -562,7 +562,7 @@
       entry.createdAt = serverTimestamp();
       entry.review = document.getElementById('review').value;
       try {
-        const docRef = await addDoc(collection(db, 'scores'), entry);
+        const docRef = await addDoc(collection(db, 'mocks'), entry);
         console.log('[Firestore] addDoc succeeded, ID:', docRef.id, entry);
       } catch (err) {
         console.error('[Firestore] addDoc failed:', err);
@@ -573,7 +573,7 @@
 
     async function deleteScore(id) {
       try {
-        await deleteDoc(doc(db, 'scores', id));
+        await deleteDoc(doc(db, 'mocks', id));
         console.log('[Firestore] deleted', id);
       } catch (err) {
         console.error('[Firestore] delete failed:', err);
