@@ -513,57 +513,50 @@
       } else {
         filtered.forEach(({ data, id }) => appendHistoryEntry(data, id));
       }
-      // updateChart(filtered);  // Removed single-chart code
       chartVR = updateSectionChart('VR', document.getElementById('filterVRTiming').value, chartVR, 'chartVR');
       chartDM = updateSectionChart('DM', document.getElementById('filterDMTiming').value, chartDM, 'chartDM');
       chartQR = updateSectionChart('QR', document.getElementById('filterQRTiming').value, chartQR, 'chartQR');
     }
 
-    // updateChart function removed (single-chart code)
     function updateSectionChart(section, timingFilterValue, chartVar, canvasId) {
-  const entries = allEntries
-    .filter(({ data }) => data.section === section)
-    .filter(({ data }) => timingFilterValue === 'All' || data.timing === timingFilterValue)
-    .sort((a, b) => {
-      const aDate = a.data.createdAt?.toDate?.() || new Date(0);
-      const bDate = b.data.createdAt?.toDate?.() || new Date(0);
-      return aDate - bDate;
-    });
+      const entries = allEntries
+        .filter(({ data }) => data.section === section)
+        .filter(({ data }) => timingFilterValue === 'All' || data.timing === timingFilterValue)
+        .sort((a, b) => {
+          const aDate = a.data.createdAt?.toDate?.() || new Date(0);
+          const bDate = b.data.createdAt?.toDate?.() || new Date(0);
+          return aDate - bDate;
+        });
 
-  const labels = entries.map(e => e.data.date);
-  const values = entries.map(e => {
-    const [obt, tot] = e.data.score.split('/').map(Number);
-    return tot > 0 ? (obt / tot) * 100 : 0;
-  });
+      const labels = entries.map(e => e.data.date);
+      const values = entries.map(e => {
+        const [obt, tot] = e.data.score.split('/').map(Number);
+        return tot > 0 ? (obt / tot) * 100 : 0;
+      });
 
-  const ctx = document.getElementById(canvasId).getContext('2d');
-  const cfg = {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: '% Correct',
-        data: values,
-        segment: {
-          borderColor: ctx =>
-            ctx.p1.parsed.y >= ctx.p0.parsed.y
-              ? '#19A861'
-              : '#D62C2C'
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      const cfg = {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: '% Correct',
+            data: values,
+            borderColor: '#79EF94',
+            fill: false,
+            tension: 0.1,
+            pointRadius: 4
+          }]
         },
-        fill: false,
-        tension: 0.1,
-        pointRadius: 4
-      }]
-    },
-    options: { scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } }
-  };
+        options: { scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } }
+      };
 
-  if (!chartVar) return new Chart(ctx, cfg);
-  chartVar.data.labels = labels;
-  chartVar.data.datasets[0].data = values;
-  chartVar.update();
-  return chartVar;
-}
+      if (!chartVar) return new Chart(ctx, cfg);
+      chartVar.data.labels = labels;
+      chartVar.data.datasets[0].data = values;
+      chartVar.update();
+      return chartVar;
+    }
     async function addScore(entry) {
       entry.userId = auth.currentUser.uid;
       entry.createdAt = serverTimestamp();
