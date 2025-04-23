@@ -536,12 +536,23 @@
   const ctx = document.getElementById(canvasId).getContext('2d');
   const cfg = {
     type: 'line',
-    data: { labels, datasets: [{ 
-      label: '% Correct', data: values,
-      borderColor: '#7AEC98', backgroundColor: 'rgba(122,236,152,0.2)',
-      fill: true, tension: 0.1, pointRadius: 4
-    }]},
-    options: { scales: { y: { beginAtZero:true, max:100 } }, plugins: { legend: { display: false } } }
+    data: {
+      labels,
+      datasets: [{
+        label: '% Correct',
+        data: values,
+        segment: {
+          borderColor: ctx =>
+            ctx.p1.parsed.y >= ctx.p0.parsed.y
+              ? '#19A861'
+              : '#D62C2C'
+        },
+        fill: false,
+        tension: 0.1,
+        pointRadius: 4
+      }]
+    },
+    options: { scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } }
   };
 
   if (!chartVar) return new Chart(ctx, cfg);
