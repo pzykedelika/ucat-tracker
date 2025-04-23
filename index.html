@@ -167,6 +167,10 @@
 </div>
 <div id="tracker-ui" style="display:none;">
   <div class="container-fluid mt-5">
+    <!-- Username required alert -->
+    <div id="usernameAlert" class="alert alert-warning text-center" role="alert" style="display:none;">
+      Please enter a username to access the tracker.
+    </div>
     <div class="d-flex align-items-baseline mb-4 ms-4">
       <h1 class="mb-0">UCAT Tracker</h1>
       <a href="mocks.html" class="ms-3" style="font-size:1.25em; text-decoration:none;">→ Mock Tracker</a>
@@ -262,7 +266,7 @@
           </div>
           <div class="me-3">
             <label for="filterText" class="form-label">Search:</label>
-            <input type="text" id="filterText" class="form-control" placeholder="Search...">
+            <input type="text" id="filterText" class="form-control" placeholder="Enter keywords...">
           </div>
         </div>
         <div class="table-responsive">
@@ -441,6 +445,7 @@
       const usernameInput = document.getElementById('usernameInput');
       const userEmoji     = document.getElementById('userEmoji');
       const saveBtn       = document.getElementById('saveUsername');
+      const usernameAlert = document.getElementById('usernameAlert');
 
       if (user) {
         // Hide login UI
@@ -452,6 +457,7 @@
           usernameInput.value        = savedName;
           userEmoji.textContent      = savedEmoji || '😹';
           saveBtn.style.display      = 'none';
+          document.getElementById('usernameAlert').style.display = 'none';
           trackerUI.style.display    = 'block';
           loadScores();
         } else {
@@ -459,6 +465,7 @@
           usernameInput.value        = '';
           userEmoji.textContent      = pickRandomEmoji();
           saveBtn.style.display      = 'inline-block';
+          document.getElementById('usernameAlert').style.display = 'block';
           trackerUI.style.display    = 'none';
         }
         usernameInput.style.display = 'inline-block';
@@ -467,6 +474,7 @@
         authUI.style.display       = 'flex';
         trackerUI.style.display    = 'none';
         usernameInput.style.display= 'none';
+        document.getElementById('usernameAlert').style.display = 'none';
       }
     });
 
@@ -483,6 +491,7 @@
       localStorage.setItem('username_' + user.uid, name);
       localStorage.setItem('emoji_'    + user.uid, emoji);
       document.getElementById('saveUsername').style.display = 'none';
+      document.getElementById('usernameAlert').style.display = 'none';
       trackerUI.style.display = 'block';
       loadScores();
     });
