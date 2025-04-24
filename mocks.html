@@ -194,38 +194,38 @@
             <div class="col-auto">
               <label for="scoreVR" class="col-form-label">VR Score</label>
               <div class="d-flex align-items-center">
-                <input type="number" class="form-control" id="scoreVR" name="scoreVR" required style="width:100px;" min="0" max="900">
+                <input type="number" class="form-control" id="scoreVR" name="scoreVR" required style="width:80px;" min="0" max="900">
               </div>
             </div>
             <!-- DM Score -->
             <div class="col-auto">
               <label for="scoreDM" class="col-form-label">DM Score</label>
               <div class="d-flex align-items-center">
-                <input type="number" class="form-control" id="scoreDM" name="scoreDM" required style="width:100px;" min="0" max="900">
+                <input type="number" class="form-control" id="scoreDM" name="scoreDM" required style="width:80px;" min="0" max="900">
               </div>
             </div>
             <!-- QR Score -->
             <div class="col-auto">
               <label for="scoreQR" class="col-form-label">QR Score</label>
               <div class="d-flex align-items-center">
-                <input type="number" class="form-control" id="scoreQR" name="scoreQR" required style="width:100px;" min="0" max="900">
+                <input type="number" class="form-control" id="scoreQR" name="scoreQR" required style="width:80px;" min="0" max="900">
               </div>
             </div>
             <!-- Total Score (computed) -->
             <div class="col-auto">
               <label for="scoreTotal" class="col-form-label">Total Score</label>
               <div class="d-flex align-items-center">
-                <input type="number" readonly class="form-control-plaintext" id="scoreTotal" name="scoreTotal" style="width:110px;" placeholder="Out of 2700">
+                <input type="number" readonly class="form-control-plaintext" id="scoreTotal" name="scoreTotal" style="width:80px;" value="0">
                 <span id="percTotal" class="ms-2"></span>
               </div>
             </div>
             <!-- Review Notes -->
             <div class="col-auto" style="max-width:200px;">
               <label for="review" class="col-form-label">Review</label>
-              <textarea class="form-control review-clickable" id="review" name="review" rows="1" style="width:200%; height:2rem; resize:none;" placeholder="Why did you make those mistakes, etc..."></textarea>
+              <textarea class="form-control review-clickable" id="review" name="review" rows="1" style="width:220%; height:2rem; resize:none;" placeholder="Why did you make those mistakes, etc..."></textarea>
             </div>
             <!-- Submit -->
-            <div class="col-auto ms-auto">
+            <div class="col-auto">
               <button type="submit" class="btn btn-primary">Submit Score</button>
             </div>
           </div>
