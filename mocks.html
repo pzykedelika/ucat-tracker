@@ -211,18 +211,18 @@
                 <input type="number" class="form-control" id="scoreQR" name="scoreQR" required style="width:100px;" min="0" max="900">
               </div>
             </div>
-            <!-- Total Score -->
+            <!-- Total Score (computed) -->
             <div class="col-auto">
               <label for="scoreTotal" class="col-form-label">Total Score</label>
               <div class="d-flex align-items-center">
-                <input type="number" class="form-control" id="scoreTotal" name="scoreTotal" required style="width:100px;" min="0" max="2700">
+                <input type="number" readonly class="form-control-plaintext" id="scoreTotal" name="scoreTotal" style="width:100px;" value="0">
                 <span id="percTotal" class="ms-2"></span>
               </div>
             </div>
             <!-- Review Notes -->
             <div class="col-auto" style="max-width:200px;">
               <label for="review" class="col-form-label">Review</label>
-              <textarea class="form-control review-clickable" id="review" name="review" rows="1" style="width:100%; height:2rem; resize:none;" placeholder="Notes..."></textarea>
+              <textarea class="form-control review-clickable" id="review" name="review" rows="1" style="width:150%; height:2rem; resize:none;" placeholder="Why did you make those mistakes, etc..."></textarea>
             </div>
             <!-- Submit -->
             <div class="col-auto">
@@ -655,10 +655,21 @@
       }
     }
 
-    // Total uses 2700
-    document.getElementById('scoreTotal').addEventListener('input', () =>
-      updatePercentage('scoreTotal','percTotal',2700)
-    );
+    // Compute and display total score and its percentage
+    function updateTotal() {
+      const vr  = parseInt(document.getElementById('scoreVR').value, 10) || 0;
+      const dm  = parseInt(document.getElementById('scoreDM').value, 10) || 0;
+      const qr  = parseInt(document.getElementById('scoreQR').value, 10) || 0;
+      const total = vr + dm + qr;
+      document.getElementById('scoreTotal').value = total;
+      // Update percentage out of 2700
+      const perc = total > 0 ? ((total / 2700) * 100).toFixed(1) : '';
+      document.getElementById('percTotal').textContent = perc ? `(${perc}%)` : '';
+    }
+
+    ['VR','DM','QR'].forEach(type => {
+      document.getElementById('score'+type).addEventListener('input', updateTotal);
+    });
 
     // Form submission
     document.getElementById('scoreForm').addEventListener('submit', async e => {
@@ -681,7 +692,9 @@
         vrScore: parseInt(document.getElementById('scoreVR').value, 10),
         dmScore: parseInt(document.getElementById('scoreDM').value, 10),
         qrScore: parseInt(document.getElementById('scoreQR').value, 10),
-        totalScore: parseInt(document.getElementById('scoreTotal').value, 10),
+        totalScore: (parseInt(document.getElementById('scoreVR').value, 10) || 0)
+                  + (parseInt(document.getElementById('scoreDM').value, 10) || 0)
+                  + (parseInt(document.getElementById('scoreQR').value, 10) || 0),
         review: document.querySelector('[name="review"]').value
       };
       await addScore(entry);
