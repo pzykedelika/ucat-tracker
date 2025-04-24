@@ -625,7 +625,7 @@
     async function addScore(entry) {
       entry.userId = auth.currentUser.uid;
       entry.createdAt = serverTimestamp();
-      entry.review = simplemde.value();
+      entry.review = document.getElementById('review').value;
       entry.userName = localStorage.getItem('username_' + auth.currentUser.uid) || 'Unknown';
       try {
         const docRef = await addDoc(collection(db, 'mocks'), entry);
@@ -704,7 +704,6 @@
       await addScore(entry);
       loadScores();
       e.target.reset();
-      if (simplemde) simplemde.value('');
     });
 
     // Remove auto-resize for form review textarea
