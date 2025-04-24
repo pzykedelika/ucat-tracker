@@ -597,24 +597,22 @@
         switch (section) {
           case 'Full Mock':
             score = e.data.totalScore;
-            max   = 2700;
+            max = 2700;
             break;
           case 'VR Subtest':
             score = e.data.vrScore;
-            max   = 900;
+            max = 900;
             break;
           case 'DM Subtest':
             score = e.data.dmScore;
-            max   = 900;
+            max = 900;
             break;
           case 'QR Subtest':
             score = e.data.qrScore;
-            max   = 900;
+            max = 900;
             break;
         }
-        // Store max on the chartVar for later use
-        values._max = max;
-        return score;
+        return max > 0 ? (score / max) * 100 : 0;
       });
 
       const ctx = document.getElementById(canvasId).getContext('2d');
@@ -623,31 +621,21 @@
         data: {
           labels,
           datasets: [{
-            label: 'Score',
+            label: '% Correct',
             data: values,
             borderColor: '#14C784',
-            // backgroundColor: 'rgba(121,239,148,0.2)', // Remove fill for line-only
-            // fill: true,
-            fill: false,
+            backgroundColor: 'rgba(121,239,148,0.2)',
+            fill: true,
             tension: 0.1,
             pointRadius: 4
           }]
         },
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true,
-              max: values._max || undefined
-            }
-          },
-          plugins: { legend: { display: false } }
-        }
+        options: { scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } }
       };
 
       if (!chartVar) return new Chart(ctx, cfg);
       chartVar.data.labels = labels;
       chartVar.data.datasets[0].data = values;
-      chartVar.options.scales.y.max = values._max || undefined;
       chartVar.update();
       return chartVar;
     }
