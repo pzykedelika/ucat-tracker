@@ -362,8 +362,9 @@
       const timeStr = rawDate
         ? rawDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true })
         : '';
-      // Compute score percentage and decide color
-      const [obtained, total] = entry.score.split('/').map(Number);
+      // Compute percentage based on totalScore out of 2700
+      const obtained = entry.totalScore || 0;
+      const total = 2700;
       const percent = total > 0 ? Math.round((obtained / total) * 100) : 0;
       let barClass;
       if (percent < 50) barClass = 'bg-danger';
@@ -389,7 +390,7 @@
               </div>
             </div>
             <span>
-              ${entry.score} <small class="text-muted ms-2">${percent}%</small>
+              ${obtained} <small class="text-muted ms-2">${percent}%</small>
             </span>
           </div>
         </td>
