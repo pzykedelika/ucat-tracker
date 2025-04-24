@@ -582,45 +582,63 @@
 
     // updateChart function removed (single-chart code)
     function updateSectionChart(section, timingFilterValue, chartVar, canvasId) {
-  const entries = allEntries
-    .filter(({ data }) => data.section === section)
-    .filter(({ data }) => timingFilterValue === 'All' || data.timing === timingFilterValue)
-    .sort((a, b) => {
-      const aDate = a.data.createdAt?.toDate?.() || new Date(0);
-      const bDate = b.data.createdAt?.toDate?.() || new Date(0);
-      return aDate - bDate;
-    });
+      const entries = allEntries
+        .filter(({ data }) => data.section === section)
+        .filter(({ data }) => timingFilterValue === 'All' || data.timing === timingFilterValue)
+        .sort((a, b) => {
+          const aDate = a.data.createdAt?.toDate?.() || new Date(0);
+          const bDate = b.data.createdAt?.toDate?.() || new Date(0);
+          return aDate - bDate;
+        });
 
-  const labels = entries.map(e => e.data.date);
-  const values = entries.map(e => {
-    const [obt, tot] = e.data.score.split('/').map(Number);
-    return tot > 0 ? (obt / tot) * 100 : 0;
-  });
+      const labels = entries.map(e => e.data.date);
+      const values = entries.map(e => {
+        let score = 0, max = 1;
+        switch (section) {
+          case 'Full Mock':
+            score = e.data.totalScore;
+            max = 2700;
+            break;
+          case 'VR Subtest':
+            score = e.data.vrScore;
+            max = 900;
+            break;
+          case 'DM Subtest':
+            score = e.data.dmScore;
+            max = 900;
+            break;
+          case 'QR Subtest':
+            score = e.data.qrScore;
+            max = 900;
+            break;
+        }
+        return max > 0 ? (score / max) * 100 : 0;
+      });
 
-  const ctx = document.getElementById(canvasId).getContext('2d');
-  const cfg = {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: '% Correct',
-        data: values,
-        borderColor: '#14C784',
-        backgroundColor: 'rgba(121,239,148,0.2)',
-        fill: true,
-        tension: 0.1,
-        pointRadius: 4
-      }]
-    },
-    options: { scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } }
-  };
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      const cfg = {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: '% Correct',
+            data: values,
+            borderColor: '#14C784',
+            backgroundColor: 'rgba(121,239,148,0.2)',
+            fill: true,
+            tension: 0.1,
+            pointRadius: 4
+          }]
+        },
+        options: { scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } }
+      };
 
-  if (!chartVar) return new Chart(ctx, cfg);
-  chartVar.data.labels = labels;
-  chartVar.data.datasets[0].data = values;
-  chartVar.update();
-  return chartVar;
-}
+      if (!chartVar) return new Chart(ctx, cfg);
+      chartVar.data.labels = labels;
+      chartVar.data.datasets[0].data = values;
+      chartVar.update();
+      return chartVar;
+    }
 
 
     async function addScore(entry) {
