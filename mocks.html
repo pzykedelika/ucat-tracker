@@ -195,7 +195,6 @@
               <label for="scoreVR" class="col-form-label">VR Score</label>
               <div class="d-flex align-items-center">
                 <input type="number" class="form-control" id="scoreVR" name="scoreVR" required style="width:100px;" min="0" max="900">
-                <span id="percVR" class="ms-2"></span>
               </div>
             </div>
             <!-- DM Score -->
@@ -203,7 +202,6 @@
               <label for="scoreDM" class="col-form-label">DM Score</label>
               <div class="d-flex align-items-center">
                 <input type="number" class="form-control" id="scoreDM" name="scoreDM" required style="width:100px;" min="0" max="900">
-                <span id="percDM" class="ms-2"></span>
               </div>
             </div>
             <!-- QR Score -->
@@ -211,7 +209,6 @@
               <label for="scoreQR" class="col-form-label">QR Score</label>
               <div class="d-flex align-items-center">
                 <input type="number" class="form-control" id="scoreQR" name="scoreQR" required style="width:100px;" min="0" max="900">
-                <span id="percQR" class="ms-2"></span>
               </div>
             </div>
             <!-- Total Score -->
@@ -223,9 +220,9 @@
               </div>
             </div>
             <!-- Review Notes -->
-            <div class="col-md-4">
+            <div class="col-auto" style="max-width:200px;">
               <label for="review" class="col-form-label">Review</label>
-              <textarea class="form-control review-clickable" id="review" name="review" rows="1" style="width:100%; height:2rem; resize:none;" placeholder="Why did you make those mistakes, etc..."></textarea>
+              <textarea class="form-control review-clickable" id="review" name="review" rows="1" style="width:100%; height:2rem; resize:none;" placeholder="Notes..."></textarea>
             </div>
             <!-- Submit -->
             <div class="col-auto">
@@ -658,12 +655,6 @@
       }
     }
 
-    // Attach listeners
-    ['VR','DM','QR'].forEach(type => {
-      document.getElementById('score'+type).addEventListener('input', () =>
-        updatePercentage('score'+type, 'perc'+type, 900)
-      );
-    });
     // Total uses 2700
     document.getElementById('scoreTotal').addEventListener('input', () =>
       updatePercentage('scoreTotal','percTotal',2700)
