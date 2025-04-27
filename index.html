@@ -628,6 +628,19 @@
         return tot > 0 ? (obt / tot) * 100 : 0;
       });
 
+      // Compute linear regression (least-squares) over indices
+      const N = values.length;
+      let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+      values.forEach((y, i) => {
+        sumX += i;
+        sumY += y;
+        sumXY += i * y;
+        sumXX += i * i;
+      });
+      const m = (N * sumXY - sumX * sumY) / (N * sumXX - sumX * sumX) || 0;
+      const c = (sumY / N) - m * (sumX / N) || 0;
+      const eqText = `y = ${m.toFixed(2)}x + ${c.toFixed(2)}`;
+
       const ctx = document.getElementById(canvasId).getContext('2d');
       const cfg = {
         type: 'line',
@@ -643,12 +656,22 @@
             pointRadius: 4
           }]
         },
-        options: { scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } }
+        options: {
+          scales: { y: { beginAtZero: true, max: 100 } },
+          plugins: {
+            legend: { display: false },
+            title: { display: true, text: eqText, font: { size: 12 } }
+          }
+        }
       };
 
       if (!chartVar) return new Chart(ctx, cfg);
       chartVar.data.labels = labels;
       chartVar.data.datasets[0].data = values;
+      // Update chart title
+      if (chartVar.options.plugins && chartVar.options.plugins.title) {
+        chartVar.options.plugins.title.text = eqText;
+      }
       chartVar.update();
       return chartVar;
     }
