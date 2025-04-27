@@ -219,7 +219,7 @@
             <div class="col-auto" id="groupTotal">
               <label for="scoreTotal" class="col-form-label">Total Score</label>
               <div class="d-flex align-items-center">
-                <input type="number" readonly class="form-control-plaintext" id="scoreTotal" name="scoreTotal" style="width:80px;" placeholder="Total">
+                <input type="number" readonly class="form-control-plaintext" id="scoreTotal" name="scoreTotal" style="width:80px;" placeholder="Scaled Score">
                 <span id="percTotal" class="ms-2"></span>
               </div>
             </div>
@@ -362,10 +362,10 @@
       const timeStr = rawDate
         ? rawDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true })
         : '';
-      // Compute percentage based on totalScore out of 2700
+      // Use 2700 for full mocks, otherwise 900
       const obtained = entry.totalScore || 0;
-      const total = 2700;
-      const percent = total > 0 ? Math.round((obtained / total) * 100) : 0;
+      const max = entry.section === 'Full Mock' ? 2700 : 900;
+      const percent = max > 0 ? Math.round((obtained / max) * 100) : 0;
       let barClass;
       if (percent < 50) barClass = 'bg-danger';
       else if (percent < 80) barClass = 'bg-warning';
@@ -685,8 +685,10 @@
       const qr  = parseInt(document.getElementById('scoreQR').value, 10) || 0;
       const total = vr + dm + qr;
       document.getElementById('scoreTotal').value = total;
-      // Update percentage out of 2700
-      const perc = total > 0 ? ((total / 2700) * 100).toFixed(1) : '';
+      // Determine max based on section
+      const section = document.getElementById('section').value;
+      const max = section === 'Full Mock' ? 2700 : 900;
+      const perc = total > 0 ? ((total / max) * 100).toFixed(1) : '';
       document.getElementById('percTotal').textContent = perc ? `(${perc}%)` : '';
     }
 
