@@ -641,6 +641,12 @@
       const c = (sumY / N) - m * (sumX / N) || 0;
       const eqText = `y = ${m.toFixed(2)}x + ${c.toFixed(2)}`;
 
+      // Update the chart header to include the regression equation
+      const headerEl = document.getElementById(canvasId).closest('.text-center').querySelector('h5');
+      if (headerEl) {
+        headerEl.textContent = `${section} — ${eqText}`;
+      }
+
       const ctx = document.getElementById(canvasId).getContext('2d');
       const cfg = {
         type: 'line',
@@ -659,8 +665,7 @@
         options: {
           scales: { y: { beginAtZero: true, max: 100 } },
           plugins: {
-            legend: { display: false },
-            title: { display: true, text: eqText, font: { size: 12 } }
+            legend: { display: false }
           }
         }
       };
@@ -668,9 +673,10 @@
       if (!chartVar) return new Chart(ctx, cfg);
       chartVar.data.labels = labels;
       chartVar.data.datasets[0].data = values;
-      // Update chart title
-      if (chartVar.options.plugins && chartVar.options.plugins.title) {
-        chartVar.options.plugins.title.text = eqText;
+      // Update the chart header to include the regression equation (again for update)
+      const headerEl2 = document.getElementById(canvasId).closest('.text-center').querySelector('h5');
+      if (headerEl2) {
+        headerEl2.textContent = `${section} — ${eqText}`;
       }
       chartVar.update();
       return chartVar;

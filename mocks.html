@@ -615,6 +615,25 @@
         return max > 0 ? (score / max) * 100 : 0;
       });
 
+      // Compute least-squares regression over the points
+      const N = values.length;
+      let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+      values.forEach((y, i) => {
+        sumX += i;
+        sumY += y;
+        sumXY += i * y;
+        sumXX += i * i;
+      });
+      const m = (N * sumXY - sumX * sumY) / (N * sumXX - sumX * sumX) || 0;
+      const c = (sumY / N) - m * (sumX / N) || 0;
+      const eqText = `y = ${m.toFixed(2)}x + ${c.toFixed(2)}`;
+
+      // Update the chart header <h5> text to include equation
+      const headerEl = document.getElementById(canvasId).closest('.text-center').querySelector('h5');
+      if (headerEl) {
+        headerEl.textContent = `${section} — ${eqText}`;
+      }
+
       const ctx = document.getElementById(canvasId).getContext('2d');
       const cfg = {
         type: 'line',
@@ -630,12 +649,22 @@
             pointRadius: 4
           }]
         },
-        options: { scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } }
+        options: {
+          scales: { y: { beginAtZero: true, max: 100 } },
+          plugins: {
+            legend: { display: false }
+            // Removed title plugin block
+          }
+        }
       };
 
       if (!chartVar) return new Chart(ctx, cfg);
       chartVar.data.labels = labels;
       chartVar.data.datasets[0].data = values;
+      // Also update the header on chart update
+      if (headerEl) {
+        headerEl.textContent = `${section} — ${eqText}`;
+      }
       chartVar.update();
       return chartVar;
     }
