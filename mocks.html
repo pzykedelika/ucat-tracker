@@ -215,11 +215,11 @@
                 <input type="number" class="form-control" id="scoreQR" name="scoreQR" required style="width:80px;" min="0" max="900">
               </div>
             </div>
-            <!-- Total Score (computed) -->
+            <!-- Total Score (computed, read-only) -->
             <div class="col-auto" id="groupTotal">
               <label for="scoreTotal" class="col-form-label">Total Score</label>
               <div class="d-flex align-items-center">
-                <input type="number" class="form-control" id="scoreTotal" name="scoreTotal" style="width:80px;" value="0">
+                <input type="number" readonly class="form-control-plaintext" id="scoreTotal" name="scoreTotal" style="width:80px;" placeholder="Total">
                 <span id="percTotal" class="ms-2"></span>
               </div>
             </div>
@@ -738,27 +738,21 @@
       const inpDM = document.getElementById('scoreDM');
       const inpQR = document.getElementById('scoreQR');
       if (section === 'Full Mock') {
-        // Show all subtest fields, always show total
+        // Show all subtests
         gVR.style.display = 'block';
         gDM.style.display = 'block';
         gQR.style.display = 'block';
-        gTotal.style.display = 'block';
-        // Ensure each subtest input max is 900
-        inpVR.setAttribute('max', '900');
-        inpDM.setAttribute('max', '900');
-        inpQR.setAttribute('max', '900');
       } else {
-        // Only show the selected subtest, always show total
+        // Show only the selected subtest
         gVR.style.display = section === 'VR Subtest' ? 'block' : 'none';
         gDM.style.display = section === 'DM Subtest' ? 'block' : 'none';
         gQR.style.display = section === 'QR Subtest' ? 'block' : 'none';
-        // Always show total score
-        gTotal.style.display = 'block';
-        // Set max on the visible subtest
-        inpVR.setAttribute('max', '900');
-        inpDM.setAttribute('max', '900');
-        inpQR.setAttribute('max', '900');
       }
+      // Always show total, set max for inputs
+      gTotal.style.display = 'block';
+      inpVR.setAttribute('max', '900');
+      inpDM.setAttribute('max', '900');
+      inpQR.setAttribute('max', '900');
     }
 
     // Attach Section change listener
@@ -767,45 +761,6 @@
     document.addEventListener('DOMContentLoaded', toggleScoreFields);
   </script>
   <!-- Section-dependent score field logic -->
-  <script>
-    // Show/hide score fields and set max on section change
-    function toggleScoreFields() {
-      const section = document.getElementById('section').value;
-      // Containers
-      const gVR = document.getElementById('groupVR');
-      const gDM = document.getElementById('groupDM');
-      const gQR = document.getElementById('groupQR');
-      const gTotal = document.getElementById('groupTotal');
-      const inpVR = document.getElementById('scoreVR');
-      const inpDM = document.getElementById('scoreDM');
-      const inpQR = document.getElementById('scoreQR');
-      const inpTotal = document.getElementById('scoreTotal');
-      if (section === 'Full Mock') {
-        gVR.style.display = 'none';
-        gDM.style.display = 'none';
-        gQR.style.display = 'none';
-        gTotal.style.display = 'block';
-        inpTotal.setAttribute('max', '2700');
-        inpTotal.removeAttribute('readonly');
-        inpTotal.classList.remove('form-control-plaintext');
-        inpTotal.classList.add('form-control');
-      } else {
-        gTotal.style.display = 'block';
-        // Show only the selected subtest
-        gVR.style.display = section === 'VR Subtest' ? 'block' : 'none';
-        gDM.style.display = section === 'DM Subtest' ? 'block' : 'none';
-        gQR.style.display = section === 'QR Subtest' ? 'block' : 'none';
-        // All subtest inputs max 900
-        inpVR.setAttribute('max', '900');
-        inpDM.setAttribute('max', '900');
-        inpQR.setAttribute('max', '900');
-      }
-    }
-    document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('section').addEventListener('change', toggleScoreFields);
-      toggleScoreFields();
-    });
-  </script>
 </div>
 </div>
 </div>
