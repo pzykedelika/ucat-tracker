@@ -219,7 +219,7 @@
             <div class="col-auto" id="groupTotal">
               <label for="scoreTotal" class="col-form-label">Total Score</label>
               <div class="d-flex align-items-center">
-                <input type="number" readonly class="form-control-plaintext" id="scoreTotal" name="scoreTotal" style="width:80px;" placeholder="Scaled Score">
+                <input type="number" readonly class="form-control-plaintext" id="scoreTotal" name="scoreTotal" style="width:80px;" placeholder="Scaled">
                 <span id="percTotal" class="ms-2"></span>
               </div>
             </div>
@@ -739,22 +739,32 @@
       const inpVR = document.getElementById('scoreVR');
       const inpDM = document.getElementById('scoreDM');
       const inpQR = document.getElementById('scoreQR');
+      const inpTotal = document.getElementById('scoreTotal');
+
       if (section === 'Full Mock') {
         // Show all subtests
         gVR.style.display = 'block';
         gDM.style.display = 'block';
         gQR.style.display = 'block';
+        // Full Mock denominator
+        inpTotal.setAttribute('placeholder', 'Out of 2700');
+        inpTotal.setAttribute('max', '2700');
       } else {
         // Show only the selected subtest
         gVR.style.display = section === 'VR Subtest' ? 'block' : 'none';
         gDM.style.display = section === 'DM Subtest' ? 'block' : 'none';
         gQR.style.display = section === 'QR Subtest' ? 'block' : 'none';
+        // Subtest denominator
+        inpTotal.setAttribute('placeholder', 'Out of 900');
+        inpTotal.setAttribute('max', '900');
       }
       // Always show total, set max for inputs
       gTotal.style.display = 'block';
       inpVR.setAttribute('max', '900');
       inpDM.setAttribute('max', '900');
       inpQR.setAttribute('max', '900');
+      // Update total value and percentage after toggling
+      updateTotal();
     }
 
     // Attach Section change listener
