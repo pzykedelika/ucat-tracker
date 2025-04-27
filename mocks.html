@@ -726,9 +726,11 @@
       document.getElementById('score'+type).addEventListener('input', updateTotal);
     });
 
-    // Form submission
+    // Form submission with logging and alert
     document.getElementById('scoreForm').addEventListener('submit', async e => {
       e.preventDefault();
+      console.log('🔔 Submit handler triggered');
+      // Build the entry object
       const sectionVal = document.getElementById('section').value;
       let timeVal;
       switch (sectionVal) {
@@ -747,12 +749,22 @@
         vrScore: parseInt(document.getElementById('scoreVR').value, 10),
         dmScore: parseInt(document.getElementById('scoreDM').value, 10),
         qrScore: parseInt(document.getElementById('scoreQR').value, 10),
-        totalScore: (parseInt(document.getElementById('scoreVR').value, 10) || 0)
-                  + (parseInt(document.getElementById('scoreDM').value, 10) || 0)
-                  + (parseInt(document.getElementById('scoreQR').value, 10) || 0),
+        totalScore:
+          (parseInt(document.getElementById('scoreVR').value, 10) || 0)
+        + (parseInt(document.getElementById('scoreDM').value, 10) || 0)
+        + (parseInt(document.getElementById('scoreQR').value, 10) || 0),
         review: document.querySelector('[name="review"]').value
       };
-      await addScore(entry);
+      console.log('Entry about to be sent:', entry);
+      try {
+        await addScore(entry);
+        console.log('✅ addScore succeeded');
+        alert('Score saved successfully!');
+      } catch (err) {
+        console.error('❌ addScore failed:', err);
+        alert('Failed to save score: ' + err.message);
+        return;
+      }
       loadScores();
       e.target.reset();
     });
