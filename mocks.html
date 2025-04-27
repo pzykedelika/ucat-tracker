@@ -778,28 +778,24 @@
     document.addEventListener('DOMContentLoaded', toggleScoreFields);
 
     // Save edited review back to Firestore
-    const noteOverlay = document.getElementById('noteOverlay');
-    const noteSave = document.getElementById('noteSave');
-    const noteContentEl = document.getElementById('noteContent');
-    if (noteSave) {
-      noteSave.addEventListener('click', async () => {
-        const mockId = noteOverlay.dataset.currentId;
-        const newReview = noteContentEl.textContent.trim();
-        try {
-          await updateDoc(doc(db, 'mocks', mockId), { review: newReview });
-          // Update the row’s data-review and visible text
-          const row = document.querySelector(`#historyBody tr td button[onclick="deleteScore('${mockId}')"]`).closest('tr');
-          const cell = row.querySelector('.review-cell');
-          cell.setAttribute('data-review', newReview);
-          cell.textContent = newReview;
-        } catch(err) {
-          console.error('Failed to save edit:', err);
-          alert('Could not save review: ' + err.message);
-        }
-        // then close overlay
-        noteOverlay.style.display = 'none';
-      });
-    }
+    // Auto-save review when closing the overlay
+    document.getElementById('noteClose').addEventListener('click', async () => {
+      const overlay = document.getElementById('noteOverlay');
+      const id = overlay.dataset.currentId;
+      const newReview = document.getElementById('noteContent').textContent.trim();
+      try {
+        await updateDoc(doc(db, 'mocks', id), { review: newReview });
+        // update the table cell
+        const row = document.querySelector(`#historyBody tr button[onclick="deleteScore('${id}')"]`).closest('tr');
+        const cell = row.querySelector('.review-cell');
+        cell.setAttribute('data-review', newReview);
+        cell.textContent = newReview;
+      } catch (err) {
+        console.error('Could not save review:', err);
+        alert('Error saving review: ' + err.message);
+      }
+      overlay.style.display = 'none';
+    });
   </script>
   <!-- Section-dependent score field logic -->
 </div>
@@ -809,15 +805,8 @@
 <div id="noteOverlay">
   <div class="sticky-note" style="min-width:300px; min-height:120px;">
     <button id="noteClose" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Close"></button>
-    <button id="noteSave" class="btn btn-sm btn-primary position-absolute top-0 start-0 m-2">Save</button>
     <div id="noteContent" contenteditable="true" style="white-space: pre-wrap; margin-top:2.5rem; min-height:70px; outline:none;"></div>
   </div>
 </div>
-<script>
-// Only handle overlay close logic globally (not review open, which is now per-row)
-document.getElementById('noteClose').addEventListener('click', function() {
-  document.getElementById('noteOverlay').style.display = 'none';
-});
-</script>
 </body>
 </html>
