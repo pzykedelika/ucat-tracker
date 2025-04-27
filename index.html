@@ -94,6 +94,9 @@
       color: #e0e0e0;
       border-color: #bdb76b;
     }
+    #noteContent:focus {
+      outline: 2px solid #007bff;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
@@ -700,7 +703,11 @@
 <div id="noteOverlay">
   <div class="sticky-note">
     <button id="noteClose" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Close"></button>
-    <div id="noteContent" style="white-space: pre-wrap;"></div>
+    <div
+      id="noteContent"
+      contenteditable="true"
+      style="white-space: pre-wrap; outline: none; min-height: 100px;">
+    </div>
   </div>
 </div>
 <script>
