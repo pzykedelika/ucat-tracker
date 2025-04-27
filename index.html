@@ -360,7 +360,7 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
     import { getAnalytics } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js';
     import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
-    import { getFirestore, collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+    import { getFirestore, collection, query, where, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, orderBy, limit, getDocs } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
 
     // Emoji assignment for new users
     const emojis = ['😺','😸','😹','😻','😼','😽','🙀','😿','😾'];
@@ -425,6 +425,8 @@
       if (ta) {
         ta.addEventListener('click', () => {
           noteContent.textContent = ta.value;
+          // store current document ID for saving
+          overlay.dataset.currentId = id;
           overlay.style.display = 'flex';
         });
       }
@@ -731,6 +733,7 @@
 <!-- Sticky-note overlay for Reviews -->
 <div id="noteOverlay">
   <div class="sticky-note">
+    <button id="noteSave" class="btn btn-sm btn-primary position-absolute top-0 start-0 m-2">Save</button>
     <button id="noteClose" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Close"></button>
     <div
       id="noteContent"
@@ -744,6 +747,34 @@
 document.getElementById('noteClose').addEventListener('click', function() {
   document.getElementById('noteOverlay').style.display = 'none';
 });
+</script>
+<script>
+  const noteSaveBtn = document.getElementById('noteSave');
+  noteSaveBtn.addEventListener('click', async () => {
+    const overlay = document.getElementById('noteOverlay');
+    const docId = overlay.dataset.currentId;
+    const newReview = document.getElementById('noteContent').textContent.trim();
+    try {
+      await updateDoc(doc(db, 'scores', docId), { review: newReview });
+      // Update the corresponding table cell
+      const cell = document.querySelector(`#historyBody textarea.review-cell[data-doc-id="${docId}"]`);
+      if (cell) cell.value = newReview;
+    } catch(err) {
+      console.error('Failed to save review:', err);
+      alert('Could not save review: ' + err.message);
+    }
+    overlay.style.display = 'none';
+  });
+  // Mark each textarea with its doc ID
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('#historyBody tr').forEach(tr => {
+      const btn = tr.querySelector('button[onclick^="deleteScore("]');
+      if (!btn) return;
+      const id = btn.getAttribute('onclick').match(/deleteScore\('(.+)'\)/)[1];
+      const ta = tr.querySelector('textarea.review-cell');
+      if (ta) ta.dataset.docId = id;
+    });
+  });
 </script>
 </body>
 </html>

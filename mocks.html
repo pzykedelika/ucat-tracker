@@ -309,7 +309,7 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
     import { getAnalytics } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js';
     import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
-    import { getFirestore, collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, orderBy, limit } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+    import { getFirestore, collection, query, where, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, orderBy, limit } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
 
     // Emoji assignment for new users
     const emojis = ['😺','😸','😹','😻','😼','😽','🙀','😿','😾'];
@@ -379,6 +379,8 @@
       if (ta) {
         ta.addEventListener('click', () => {
           noteContent.textContent = ta.getAttribute('data-review') || '';
+          // remember which document we're editing
+          overlay.dataset.currentId = id;
           overlay.style.display = 'flex';
         });
       }
@@ -774,6 +776,30 @@
 
     document.getElementById('section').addEventListener('change', toggleScoreFields);
     document.addEventListener('DOMContentLoaded', toggleScoreFields);
+
+    // Save edited review back to Firestore
+    const noteOverlay = document.getElementById('noteOverlay');
+    const noteSave = document.getElementById('noteSave');
+    const noteContentEl = document.getElementById('noteContent');
+    if (noteSave) {
+      noteSave.addEventListener('click', async () => {
+        const mockId = noteOverlay.dataset.currentId;
+        const newReview = noteContentEl.textContent.trim();
+        try {
+          await updateDoc(doc(db, 'mocks', mockId), { review: newReview });
+          // Update the row’s data-review and visible text
+          const row = document.querySelector(`#historyBody tr td button[onclick="deleteScore('${mockId}')"]`).closest('tr');
+          const cell = row.querySelector('.review-cell');
+          cell.setAttribute('data-review', newReview);
+          cell.textContent = newReview;
+        } catch(err) {
+          console.error('Failed to save edit:', err);
+          alert('Could not save review: ' + err.message);
+        }
+        // then close overlay
+        noteOverlay.style.display = 'none';
+      });
+    }
   </script>
   <!-- Section-dependent score field logic -->
 </div>
@@ -783,6 +809,7 @@
 <div id="noteOverlay">
   <div class="sticky-note" style="min-width:300px; min-height:120px;">
     <button id="noteClose" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Close"></button>
+    <button id="noteSave" class="btn btn-sm btn-primary position-absolute top-0 start-0 m-2">Save</button>
     <div id="noteContent" contenteditable="true" style="white-space: pre-wrap; margin-top:2.5rem; min-height:70px; outline:none;"></div>
   </div>
 </div>
