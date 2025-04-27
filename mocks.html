@@ -94,40 +94,7 @@
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    // Function to toggle the display of the time input based on the hidden timing value
-    function toggleTimeField() {
-        var timingValue = document.getElementById('timing').value;
-        var timeField = document.getElementById('timeInputField');
-        if (timingValue === "Timed") {
-            timeField.style.display = "block";
-        } else {
-            timeField.style.display = "none";
-        }
-    }
-
-    // Function to update the timing value and button styles
-    function setTiming(value) {
-        document.getElementById('timing').value = value;
-        if(value === "Timed") {
-            document.getElementById('btnTimed').classList.remove('btn-outline-primary');
-            document.getElementById('btnTimed').classList.add('btn-primary');
-            document.getElementById('btnUntimed').classList.remove('btn-primary');
-            document.getElementById('btnUntimed').classList.add('btn-outline-primary');
-        } else {
-            document.getElementById('btnUntimed').classList.remove('btn-outline-primary');
-            document.getElementById('btnUntimed').classList.add('btn-primary');
-            document.getElementById('btnTimed').classList.remove('btn-primary');
-            document.getElementById('btnTimed').classList.add('btn-outline-primary');
-        }
-        toggleTimeField();
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize the time field display
-        toggleTimeField();
-    });
-  </script>
+</head>
 </head>
 <body>
   <div class="d-flex justify-content-between align-items-center px-4 mt-2">
@@ -199,21 +166,21 @@
             <div class="col-auto" id="groupVR">
               <label for="scoreVR" class="col-form-label">VR Score</label>
               <div class="d-flex align-items-center">
-                <input type="number" class="form-control" id="scoreVR" name="scoreVR" required style="width:80px;" min="0" max="900">
+                <input type="number" class="form-control" id="scoreVR" name="scoreVR" style="width:80px;" min="0" max="900">
               </div>
             </div>
             <!-- DM Score -->
             <div class="col-auto" id="groupDM">
               <label for="scoreDM" class="col-form-label">DM Score</label>
               <div class="d-flex align-items-center">
-                <input type="number" class="form-control" id="scoreDM" name="scoreDM" required style="width:80px;" min="0" max="900">
+                <input type="number" class="form-control" id="scoreDM" name="scoreDM" style="width:80px;" min="0" max="900">
               </div>
             </div>
             <!-- QR Score -->
             <div class="col-auto" id="groupQR">
               <label for="scoreQR" class="col-form-label">QR Score</label>
               <div class="d-flex align-items-center">
-                <input type="number" class="form-control" id="scoreQR" name="scoreQR" required style="width:80px;" min="0" max="900">
+                <input type="number" class="form-control" id="scoreQR" name="scoreQR" style="width:80px;" min="0" max="900">
               </div>
             </div>
             <!-- Total Score (computed, read-only) -->
@@ -774,44 +741,38 @@
     // --- Toggle score fields logic for Section selection ---
     function toggleScoreFields() {
       const section = document.getElementById('section').value;
-      const gVR = document.getElementById('scoreVR').closest('.col-auto');
-      const gDM = document.getElementById('scoreDM').closest('.col-auto');
-      const gQR = document.getElementById('scoreQR').closest('.col-auto');
-      const gTotal = document.getElementById('scoreTotal').closest('.col-auto');
-      const inpVR = document.getElementById('scoreVR');
-      const inpDM = document.getElementById('scoreDM');
-      const inpQR = document.getElementById('scoreQR');
-      const inpTotal = document.getElementById('scoreTotal');
-
+      const groups = {
+        VR: { div: document.getElementById('groupVR'), input: document.getElementById('scoreVR') },
+        DM: { div: document.getElementById('groupDM'), input: document.getElementById('scoreDM') },
+        QR: { div: document.getElementById('groupQR'), input: document.getElementById('scoreQR') }
+      };
+      // Show/hide subtests
       if (section === 'Full Mock') {
-        // Show all subtests
-        gVR.style.display = 'block';
-        gDM.style.display = 'block';
-        gQR.style.display = 'block';
-        // Full Mock denominator
-        inpTotal.setAttribute('placeholder', 'Out of 2700');
-        inpTotal.setAttribute('max', '2700');
+        Object.values(groups).forEach(g => {
+          g.div.style.display = 'block';
+          g.input.disabled = false;
+          g.input.required = true;
+        });
       } else {
-        // Show only the selected subtest
-        gVR.style.display = section === 'VR Subtest' ? 'block' : 'none';
-        gDM.style.display = section === 'DM Subtest' ? 'block' : 'none';
-        gQR.style.display = section === 'QR Subtest' ? 'block' : 'none';
-        // Subtest denominator
-        inpTotal.setAttribute('placeholder', 'Out of 900');
-        inpTotal.setAttribute('max', '900');
+        Object.entries(groups).forEach(([key, g]) => {
+          const isVisible = section === `${key} Subtest`;
+          g.div.style.display = isVisible ? 'block' : 'none';
+          g.input.disabled = !isVisible;
+          g.input.required = isVisible;
+        });
       }
-      // Always show total, set max for inputs
-      gTotal.style.display = 'block';
-      inpVR.setAttribute('max', '900');
-      inpDM.setAttribute('max', '900');
-      inpQR.setAttribute('max', '900');
-      // Update total value and percentage after toggling
+      // Total Score is always shown but never required
+      const totalInput = document.getElementById('scoreTotal');
+      totalInput.disabled = false;
+      totalInput.required = false;
+      // Adjust Total placeholder/max
+      totalInput.placeholder = section === 'Full Mock' ? 'Out of 2700' : 'Out of 900';
+      totalInput.max = section === 'Full Mock' ? '2700' : '900';
+      // Recalculate
       updateTotal();
     }
 
-    // Attach Section change listener
     document.getElementById('section').addEventListener('change', toggleScoreFields);
-    // Call once on load
     document.addEventListener('DOMContentLoaded', toggleScoreFields);
   </script>
   <!-- Section-dependent score field logic -->
