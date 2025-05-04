@@ -312,6 +312,10 @@
             </tbody>
           </table>
         </div>
+        <!-- Pagination controls -->
+        <nav>
+          <ul id="pagination" class="pagination justify-content-center mt-3"></ul>
+        </nav>
       </div>
     </div>
 
@@ -372,6 +376,9 @@
     let chartVR, chartDM, chartQR;
     let allEntries = [];
     let scoreChart;
+    // Pagination state for score history
+    let currentPage = 1;
+    const pageSize = 10;
 
     // Helper to render one score row
     function appendHistoryEntry(entry, id) {
@@ -573,14 +580,14 @@
       });
     }
 
-    // Attach filter event listeners once
-    document.getElementById('filterSection').addEventListener('change', renderTable);
-    document.getElementById('filterTiming').addEventListener('change', renderTable);
-    document.getElementById('filterVRTiming').addEventListener('change', renderTable);
-    document.getElementById('filterDMTiming').addEventListener('change', renderTable);
-    document.getElementById('filterQRTiming').addEventListener('change', renderTable);
-    document.getElementById('filterRange').addEventListener('change', renderTable);
-    document.getElementById('filterText').addEventListener('input', renderTable);
+    // Attach filter event listeners once, reset currentPage to 1 on change
+    document.getElementById('filterSection').addEventListener('change', () => { currentPage = 1; renderTable(); });
+    document.getElementById('filterTiming').addEventListener('change', () => { currentPage = 1; renderTable(); });
+    document.getElementById('filterVRTiming').addEventListener('change', () => { currentPage = 1; renderTable(); });
+    document.getElementById('filterDMTiming').addEventListener('change', () => { currentPage = 1; renderTable(); });
+    document.getElementById('filterQRTiming').addEventListener('change', () => { currentPage = 1; renderTable(); });
+    document.getElementById('filterRange').addEventListener('change', () => { currentPage = 1; renderTable(); });
+    document.getElementById('filterText').addEventListener('input', () => { currentPage = 1; renderTable(); });
 
     function renderTable() {
       const tbody = document.getElementById('historyBody');
@@ -598,7 +605,6 @@
         case '6months': threshold = new Date(now.setMonth(now.getMonth() - 6)); break;
         default:        threshold = null;
       }
-      tbody.innerHTML = '';
       const filtered = allEntries.filter(({ data }) => {
         const sectionOk = (sectionFilter === 'All' || data.section === sectionFilter);
         const timingOk  = (timingFilter  === 'All' || data.timing  === timingFilter);
@@ -608,11 +614,37 @@
         const textOk = !textFilter || combined.includes(textFilter);
         return sectionOk && timingOk && dateOk && textOk;
       });
+      const pageCount = Math.ceil(filtered.length / pageSize) || 1;
+      if (currentPage > pageCount) currentPage = pageCount;
+      const start = (currentPage - 1) * pageSize;
+      const paginated = filtered.slice(start, start + pageSize);
+
+      tbody.innerHTML = '';
       if (filtered.length === 0) {
         tbody.innerHTML = `<tr id="noScoresRow"><td colspan="6" class="text-center">No scores found.</td></tr>`;
       } else {
-        filtered.forEach(({ data, id }) => appendHistoryEntry(data, id));
+        paginated.forEach(({ data, id }) => appendHistoryEntry(data, id));
       }
+
+      // Build pagination UI
+      const paginationEl = document.getElementById('pagination');
+      paginationEl.innerHTML = '';
+      for (let i = 1; i <= pageCount; i++) {
+        const li = document.createElement('li');
+        li.className = `page-item${i === currentPage ? ' active' : ''}`;
+        const a = document.createElement('a');
+        a.className = 'page-link';
+        a.href = '#';
+        a.textContent = i;
+        a.addEventListener('click', e => {
+          e.preventDefault();
+          currentPage = i;
+          renderTable();
+        });
+        li.appendChild(a);
+        paginationEl.appendChild(li);
+      }
+
       chartVR = updateSectionChart('VR', document.getElementById('filterVRTiming').value, chartVR, 'chartVR');
       chartDM = updateSectionChart('DM', document.getElementById('filterDMTiming').value, chartDM, 'chartDM');
       chartQR = updateSectionChart('QR', document.getElementById('filterQRTiming').value, chartQR, 'chartQR');
