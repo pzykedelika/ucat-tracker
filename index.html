@@ -605,15 +605,22 @@
         case '6months': threshold = new Date(now.setMonth(now.getMonth() - 6)); break;
         default:        threshold = null;
       }
-      const filtered = allEntries.filter(({ data }) => {
-        const sectionOk = (sectionFilter === 'All' || data.section === sectionFilter);
-        const timingOk  = (timingFilter  === 'All' || data.timing  === timingFilter);
-        const dateOk = !threshold || (data.createdAt?.toDate?.() >= threshold);
-        const combined = [data.date, data.section, data.timing, data.time, data.score, data.review || '']
-          .join(' ').toLowerCase();
-        const textOk = !textFilter || combined.includes(textFilter);
-        return sectionOk && timingOk && dateOk && textOk;
-      });
+      let filtered = allEntries
+        .filter(({ data }) => {
+          const sectionOk = (sectionFilter === 'All' || data.section === sectionFilter);
+          const timingOk  = (timingFilter  === 'All' || data.timing  === timingFilter);
+          const dateOk = !threshold || (data.createdAt?.toDate?.() >= threshold);
+          const combined = [data.date, data.section, data.timing, data.time, data.score, data.review || '']
+            .join(' ').toLowerCase();
+          const textOk = !textFilter || combined.includes(textFilter);
+          return sectionOk && timingOk && dateOk && textOk;
+        })
+        // Ensure newest first
+        .sort((a, b) => {
+          const aTime = a.data.createdAt?.toDate?.() || new Date(0);
+          const bTime = b.data.createdAt?.toDate?.() || new Date(0);
+          return bTime - aTime;
+        });
       const pageCount = Math.ceil(filtered.length / pageSize) || 1;
       if (currentPage > pageCount) currentPage = pageCount;
       const start = (currentPage - 1) * pageSize;
