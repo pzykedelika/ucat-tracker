@@ -747,19 +747,23 @@
     window.deleteScore = deleteScore;
  
     // Form submission
-    document.getElementById('scoreForm').addEventListener('submit', async e => {
-      e.preventDefault();
-      const entry = {
-        date: document.getElementById('date').value,
-        section: document.getElementById('section').value,
-        timing: document.getElementById('timing').value,
-        time: document.getElementById('timing').value === 'Timed' ? Number(document.getElementById('time').value) : 0,
-        score: document.getElementById('score').value
-      };
-      await addScore(entry);
-      loadScores();
-      e.target.reset(); setTiming('Timed'); updateScorePercentage();
-    });
+document.getElementById('scoreForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const entry = {
+    date: document.getElementById('date').value,
+    section: document.getElementById('section').value,
+    timing: document.getElementById('timing').value,
+    time: document.getElementById('timing').value === 'Timed' ? Number(document.getElementById('time').value) : 0,
+    score: document.getElementById('score').value
+  };
+  await addScore(entry);
+  // Reset to first page so new entry is visible
+  if (typeof currentPage !== 'undefined') {
+    currentPage = 1;
+  }
+  loadScores();
+  e.target.reset(); setTiming('Timed'); updateScorePercentage();
+});
 
     // Remove auto-resize for form review textarea
   </script>
